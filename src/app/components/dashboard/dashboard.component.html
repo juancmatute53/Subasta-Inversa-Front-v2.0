@@ -1,0 +1,671 @@
+<!--suppress TypeScriptUnresolvedVariable -->
+<div class="d-flex" id="content-wrapper">
+  <p-toast></p-toast>
+  <!-- Sidebar -->
+  <div id="sidebar-container" class="bg-primary">
+    <div class="logo">
+      <h4 class="text-light font-weight-bold mb-0">Sistema de Subastas</h4>
+    </div>
+    <div class="menu">
+      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalMon" class="d-block text-light p-3 border-0"><i
+        class="icon ion-md-tv lead mr-2"></i>
+        Monitoreo</a>
+
+      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSub" class="d-block text-light p-3 border-0"><i
+        class="icon ion-md-add-circle lead mr-2"></i>
+        Nueva Subasta</a>
+
+      <a *ngIf="rol === 'admin'" data-toggle="modal" data-target="#ventanaModalCat" class="d-block text-light p-3 border-0"><i
+        class="icon ion-md-bookmark lead mr-2"></i>
+        Nueva Categoria</a>
+
+      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSubRealizadas" class="d-block text-light p-3 border-0"><i
+        class="icon ion-md-time lead mr-2"></i>
+        Hisorial Subastas Realizadas</a>
+
+      <a *ngIf="rol === 'proveedor' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSubOfertadas" class="d-block text-light p-3 border-0"><i
+        class="icon ion-md-time lead mr-2"></i>
+        Histoial Subasas Ofertadas</a>
+
+    </div>
+  </div>
+
+  <!-- Fin sidebar -->
+  <div class="w-100">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+      <div class="container">
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <form class="form-inline position-relative d-inline-block my-2">
+            <input class="form-control" type="search" placeholder="Buscar" aria-label="Buscar">
+            <button class="btn position-absolute btn-search" type="submit"><i class="icon ion-md-search"></i></button>
+          </form>
+          <ul class="navbar-nav ml-auto">
+            <li class="mt-3">
+              <i class="pi pi-bell mr-4 p-text-secondary" pBadge style="font-size: 22px" value="{{listaOfertaGanadora.length}}" (click)="verNotificaciones()"></i>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <img src="https://www.pinclipart.com/picdir/big/164-1640714_user-symbol-interface-contact-phone-set-add-sign.png" class="img-fluid rounded-circle avatar mr-2"/>
+                {{nombreUserLog}}
+              </a>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" data-toggle="modal" data-target="#ventanaModalPerfil">Mi perfil</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="/login" (click)="cerrarSesion()">Cerrar sesión</a>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- Fin Navbar -->
+
+    <!-- Page Content -->
+    <div id="content" class="bg-grey w-100">
+
+      <section class="bg-light py-3">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-9 col-md-8">
+              <h1 class="font-weight-bold mb-1">¡Hola {{nombreUserLog}}!</h1>
+              <p class="lead text-muted">El equipo de NextSharp te da la bienvenida.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!--Cards de subastas-->
+
+      <section *ngIf="verDialogoNotificacion === false" class="bg-mix py-3">
+        <div class="container text-center">
+          <div class="row">
+            <div *ngIf="subastasBD.length === 0">No hay subastas para mostrar</div>
+            <div class="col p-2 mt-2" *ngFor="let subasta of subastasBD">
+              <p-card header="{{subasta.tituloSubasta}}" subheader="" [style]="{width: '360px'}"
+                      styleClass="p-card-shadow">
+                <ng-template pTemplate="header">
+                  <p-image
+                    src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}"
+                    [preview]="true">
+                  </p-image>
+                  <!--<img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}" style="width: 200px; height: 100px; object-fit: cover;" (click)="">-->
+                </ng-template>
+                <p>{{subasta.descripcionSubasta}}</p>
+                <p>
+                  <strong>
+                    Fecha Inicio:
+                  </strong>
+                  {{subasta.fechaInicio | date: 'dd/mm/yyyy'}}</p>
+
+                <p>
+                  <strong>
+                    Fecha Cierre:
+                  </strong>
+                  {{subasta.fechaFin | date: 'dd/mm/yyyy'}}</p>
+                <ng-template pTemplate="footer">
+                  <button *ngIf="rol === 'proveedor' || rol === 'admin'" type="button" class="btn btn-primary" data-toggle="modal"
+                          (click)="observarSubastaSelected(subasta)">
+                    Ofertar
+                  </button>
+                </ng-template>
+              </p-card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section *ngIf="verDialogoNotificacion">
+        <div>
+          <div class="container text-center">
+            <h3>Subastas Ganadas</h3>
+            <div class="row">
+              <div *ngIf="listaOfertaGanadora.length === 0">No hay subastas ganadoras</div>
+              <div class="col p-2 mt-2" *ngFor="let oferta of listaOfertaGanadora">
+                <!--suppress TypeScriptUnresolvedVariable -->
+                <p-card header="{{oferta.subasta.tituloSubasta}}" subheader="" [style]="{width: '460px'}"
+                        styleClass="p-card-shadow">
+                  <ng-template pTemplate="header">
+                    <p-image
+                      src="http://localhost:9090/auth/subasta/photos/{{oferta.subasta.imgSubasta}}"
+                      [preview]="true">
+                    </p-image>
+                    <!--<img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}" style="width: 200px; height: 100px; object-fit: cover;" (click)="">-->
+                  </ng-template>
+                  <p>{{oferta.subasta.descripcionSubasta}}</p>
+                  <span>
+                    <strong>
+                      Fecha Inicio:
+                    </strong>
+                    {{oferta.subasta.fechaInicio | date: 'dd/mm/yyyy'}}</span>
+                  <span>
+                    <strong>
+                      Fecha Cierre:
+                    </strong>
+                    {{oferta.subasta.fechaFin | date: 'dd/mm/yyyy'}}</span>
+                  <ng-template pTemplate="footer">
+                    <p-accordion>
+                      <p-accordionTab header="Detelle del cliente" [selected]="true">
+                        <div class="text-start">
+                          <ul>
+                            <!--suppress TypeScriptUnresolvedVariable -->
+                            <i class="bi bi-file-person"></i>
+                            <strong>
+                              Nombre :
+                            </strong> {{oferta.subasta.cliente.nombre + ' '+ oferta.subasta.cliente.apellido}}
+                            <li class="mt-2" style="list-style:none;">
+                              <i class="bi bi-whatsapp"></i>
+                              <strong>
+                                Telefono:
+                              </strong> {{oferta.subasta.cliente.telefono}}
+                            </li>
+                            <li class="mt-2" style="list-style:none;">
+                              <i class="bi bi-envelope-at-fill"></i>
+                              <strong>
+                                Correo:
+                              </strong> {{oferta.subasta.cliente.email}}
+                            </li>
+                          </ul>
+                        </div>
+                      </p-accordionTab>
+                    </p-accordion>
+                  </ng-template>
+                </p-card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+
+<!--P R O V E E D O R-->
+
+<!--Modal de Contratar Oferta-->
+
+<div *ngIf="mostrarAnimacionCarga">
+  <p-progressBar mode="indeterminate" [style]="{'height': '6px'}"></p-progressBar>
+</div>
+<p-dialog header="Realizar oferta" [(visible)]="displayModal" [modal]="true" [style]="{width: '50vw'}"
+          [draggable]="false" [resizable]="false">
+  <p-message severity="info"
+             text="Recuerda que no podrás ver las ofertas de otros proveedores y de la misma manera los
+                demás proveedores no podrá ver tu oferta. Solo el dueño de la subasta
+                podrá ver las ofertas realizadas. Tambien no podrás cambiar el valor de tu oferta
+                una vez hayas publicado el mismo." styleClass="mr-2"></p-message>
+  <form class="row g-3 mt-3" [formGroup]="formNuevaOferta">
+    <!--Precio y boton de ofertar-->
+    <div class="col">
+      <label for="inputPrecioS" class="form-label">Ingresar Precio</label>
+      <input type="number" class="form-control" id="inputPrecioS" formControlName="precioOferta"
+             (change)="observarPrecioOferta()">
+      <small *ngIf="formNuevaOferta.get('precioOferta').hasError('required')
+                        && formNuevaOferta.get('precioOferta').touched" class="text-danger">
+        Debes ingresar un valor a ofertar
+      </small>
+    </div>
+  </form>
+  <ng-template pTemplate="footer">
+    <p-button icon="pi pi-check" (click)="ofertarSubasta()" [disabled]="isValorOferta" label="Ofertar" styleClass="p-button-text"></p-button>
+  </ng-template>
+</p-dialog>
+
+<!--MODAL DE HISTORIAL DE SUBASTAS PUJADAS-->
+
+<div class="modal" tabindex="-1" id="ventanaModalSubOfertadas">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Historial de Subastas Ofertadas</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!--Tabla-->
+        <p-table [value]="listarOfertaPro" [tableStyle]="{'min-width': '50rem'}">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Fecha</th>
+              <th>Precio Oferta</th>
+              <th>Titulo Subasta</th>
+              <th>Descripcion Subasta</th>
+              <th>Servicio Ofertado</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-oferta>
+            <tr>
+              <td>{{oferta.fecha | date: 'dd/MM/yyyy'}}</td>
+              <td>{{oferta.percioOferta}}</td>
+              <td>{{oferta.subasta.tituloSubasta}}</td>
+              <td>{{oferta.subasta.descripcionSubasta}}</td>
+              <td>{{oferta.subasta.servicio.nombreServicio}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!--C L I E N T E-->
+
+<!--Modal de nueva subasta-->
+
+<div class="modal" tabindex="-1" id="ventanaModalSub">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Nueva Subasta</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!--Layout-->
+
+        <form class="row g-3" [formGroup]="formNuevaSubasta">
+
+          <div class="text-center">
+            <img src="assets/add_photo.png" class="img-fluid rounded-circle" width="130px"/>
+          </div>
+          <input class="form-control" type="file" id="archivo" formControlName="imagenSubasta" (change)="onFileSelected($event)">
+
+          <div class="col-md-6">
+            <label for="inputNombre" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="inputNombre" formControlName="tituloSubasta">
+          </div>
+          <div class="col-md-6">
+            <label for="inputFechI" class="form-label">Fecha de inicio</label>
+            <input type="date" class="form-control" [placeholder]="fechaActual" id="inputFechI"
+                   formControlName="fechaInicioSubasta">
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputDes" class="form-label">Descripcion</label>
+            <input type="text" class="form-control" id="inputDes" formControlName="descripcionSubasta">
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputFech" class="form-label">Fecha de cierre</label>
+            <input type="date" class="form-control" id="inputFech" formControlName="fechaFinSubasta">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Servicio solicitado</label>
+            <br>
+            <p-dropdown
+              [options]="serviciosBD"
+              [filter]="true"
+              filterBy="name"
+              [showClear]="true"
+              placeholder="Seleccione un servicio"
+              optionLabel="name"
+              formControlName="servioSolicitado">
+            </p-dropdown>
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputHc" class="form-label">Hora de cierre</label>
+            <input type="time" class="form-control" id="inputHc" formControlName="horaCierreSubasta">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="crearSubasta()">Agregar Subasta</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Modal de Servicios Contratados-->
+
+<div class="modal" tabindex="-1" id="ventanaModalSerCon">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Servicios Contratados</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!--Tabla-->
+        <p-table [value]="subastaEstadoFin" [tableStyle]="{'min-width': '50rem'}">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Code</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Quantity</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-product>
+            <tr>
+              <td>{{product.code}}</td>
+              <td>{{product.name}}</td>
+              <td>{{product.category}}</td>
+              <td>{{product.quantity}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--MODAL DE HISTORIAL DE SUBASTAS REALIZADAS-->
+<div class="modal" tabindex="-1" id="ventanaModalSubRealizadas">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Historial de Subastas Realizadas</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!--Tabla-->
+        <p-table [value]="subastaEstadoFin" [tableStyle]="{'min-width': '50rem'}">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Titulo</th>
+              <th>Descripcion</th>
+              <th>Fecha Inicio</th>
+              <th>Fecha Fin</th>
+              <th>Estado</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-subasta>
+            <tr>
+              <td>{{subasta.tituloSubasta}}</td>
+              <td>{{subasta.descripcionSubasta}}</td>
+              <td>{{subasta.fechaInicio | date: 'dd/MM/yyyy'}}</td>
+              <td>{{subasta.fechaFin | date: 'dd/MM/yyyy'}}</td>
+              <td>{{subasta.estadoSubasta}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Modal de Monitoreo-->
+
+<div class="modal" tabindex="-1" id="ventanaModalMon">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Monitoreo de Subastas</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!--Tabla-->
+        <div class="card">
+          <p-table #dt [value]="subastaEstado" [rows]="10" [paginator]="true" [globalFilterFields]="['name','country.name','representative.name','status']" [tableStyle]="{'min-width': '68rem'}"
+                   [rowHover]="true" dataKey="id"
+                   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="flex align-items-center justify-content-between">
+                <h5 class="m-0">Subastas en proceso</h5>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+<!--                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />-->
+                </span>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="Subasta">Subasta</th>
+                <th pSortableColumn="Descripcion" style="min-width:8rem">Descripcion</th>
+                <th pSortableColumn="Fecha Inicio">Fecha Inicio</th>
+                <th pSortableColumn="Fecha Cierre" style="min-width:5rem">Fecha Cierre</th>
+                <th pSortableColumn="Estado" style="min-width:5rem">Estado</th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-subasta>
+              <tr>
+                <td>{{subasta.tituloSubasta}}</td>
+                <td>{{subasta.descripcionSubasta}}</td>
+                <td>{{subasta.fechaInicio | date: 'dd/MM/yyyy'}}</td>
+                <td>{{subasta.fechaFin | date: 'dd/MM/yyyy'}}</td>
+                <td>{{subasta.estadoSubasta}}</td>
+                <td>
+                  <button pButton pRipple icon="pi pi-inbox" class="p-button-rounded p-button-success mr-2" (click)="verOfertas(subasta)"></button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+<!--              <div class="flex align-items-center justify-content-between">-->
+<!--                In total there are {{products ? products.length : 0 }} products.-->
+<!--              </div>-->
+            </ng-template>
+          </p-table>
+        </div>
+
+        <!--Dialog ofertas de subasta-->
+        <p-dialog header="Ofertas recibidas" [(visible)]="mostrarDialogOferta" [position]="posicionDialogOferta" [modal]="true" [style]="{width: '50vw'}"
+                  [draggable]="false" [resizable]="false">
+
+          <div class="container">
+            <div class="row">
+              <div *ngIf="ofertasPorSubasta.length === 0">Aun no se han registrado ofertas</div>
+              <div *ngFor="let ofer of ofertasPorSubasta" class="col mt-3">
+                <p-card
+                  header="{{ofer.proveedor.nombre +' '+ ofer.proveedor.apellido}}"
+                  subheader="Precio Oferta: {{ofer.percioOferta}}"
+                  [style]="{width: '360px'}"
+                  styleClass="p-card-shadow">
+                  <ng-template pTemplate="footer">
+                    <p>
+                      <strong>Email:</strong>{{' '+ofer.proveedor.email}}
+                    </p>
+                    <p>
+                      <strong>Telefono:</strong>{{' '+ofer.proveedor.email}}
+                    </p>
+                    <p>
+                      <strong>Años Experiencia:</strong>{{' '+ofer.proveedor.anios_experiencia}}
+                    </p>
+                    <button (click)="confirm(ofer)" pButton icon="pi pi-check" label="Confirm"></button>
+                  </ng-template>
+                </p-card>
+              </div>
+            </div>
+          </div>
+          <p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+
+
+          <ng-template pTemplate="footer">
+            <p-button icon="pi pi-check" (click)="mostrarDialogOferta=false" label="Ok" styleClass="p-button-text"></p-button>
+          </ng-template>
+        </p-dialog>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar Monitoreo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!--G E N E R A L E S-->
+
+<!--Modal de Pefil de Usuario-->
+
+<div class="modal" tabindex="-1" id="ventanaModalPerfil">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Perfil de Usuario</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!--Tabla-->
+        <form class="row g-3">
+          <div class="text-center">
+            <img src="assets/user-2.jpg" class="img-fluid rounded-circle" width="130px"/>
+
+          </div>
+          <div class="col-md-6">
+            <label for="inputNombreP" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="inputNombreP">
+          </div>
+          <div class="col-md-6">
+            <label for="inputTelefono" class="form-label">Telefono</label>
+            <input type="text" class="form-control" id="inputTelefono">
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputApellido" class="form-label">Apellido</label>
+            <input type="text" class="form-control" id="inputApellido">
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputUsuario" class="form-label">Usuario</label>
+            <input type="text" class="form-control" id="inputUsuario">
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputDireccion" class="form-label">Direccion</label>
+            <input type="text" class="form-control" id="inputDireccion">
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputPassword" class="form-label">Contraseña</label>
+            <input type="text" class="form-control" id="inputPassword">
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="inputEmail">
+          </div>
+        </form>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ventanaModalPerfil2">Actualizar
+          Informacion
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--Modal de ACTUALIZARR Pefil de Usuario-->
+
+<div class="modal" tabindex="-1" id="ventanaModalPerfil2">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Actualizar Perfil de Usuario</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!--Tabla-->
+        <form class="row g-3">
+          <div class="text-center">
+            <img src="assets/user-2.jpg" class="img-fluid rounded-circle" width="130px"/>
+          </div>
+          <input class="form-control" type="file" id="archivo2">
+          <div class="col-md-6">
+            <label for="inputNombreP2" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="inputNombreP2">
+          </div>
+          <div class="col-md-6">
+            <label for="inputTelefono2" class="form-label">Telefono</label>
+            <input type="text" class="form-control" id="inputTelefono2">
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputApellido2" class="form-label">Apellido</label>
+            <input type="text" class="form-control" id="inputApellido2">
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputUsuario2" class="form-label">Usuario</label>
+            <input type="text" class="form-control" id="inputUsuario2">
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputDireccion2" class="form-label">Direccion</label>
+            <input type="text" class="form-control" id="inputDireccion2">
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputPassword2" class="form-label">Contraseña</label>
+            <input type="text" class="form-control" id="inputPassword2">
+          </div>
+
+          <div class="col-md-6">
+            <label for="inputEmail2" class="form-label">Email</label>
+            <input type="email" class="form-control" id="inputEmail2">
+          </div>
+        </form>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--A D M I N-->
+
+<!--Modal de Categoria-->
+
+<!--Modal de Categoria-->
+
+<div class="modal" tabindex="-1" id="ventanaModalCat">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Nueva Categoria</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!--Layout-->
+
+        <form class="row g-3" [formGroup]="formNuevoServicio">
+          <div class="mb-3">
+            <label for="nombreCategoria" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="nombreCategoria" placeholder="Ingrese el nombre categoría" formControlName="tituloServicio">
+          </div>
+
+          <div class="mb-3">
+            <label for="descripcionCategoria" class="form-label">Descripcion</label>
+            <input type="text" class="form-control" id="descripcionCategoria" placeholder="Ingrese descripcion" formControlName="tituloDescripcion">
+          </div>
+        </form>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="crearServicio()">Agregar Categoría</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+

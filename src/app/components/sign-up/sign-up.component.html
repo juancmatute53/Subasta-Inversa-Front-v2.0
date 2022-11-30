@@ -1,0 +1,251 @@
+<p-toast></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<p-dialog header="Agregar Servicios" [(visible)]="verDialogoAddServi" [modal]="true"
+          [style]="{width: '90vw', height: '150vw'}"
+          [draggable]="false" [resizable]="true" (onHide)="validarServiciosSeleccion()">
+  <p class="m-0">Como proveedor necesitamos que nos digas a que te dedicas y cuantos años tienes de experiencia.</p>
+  <div>
+    <div class="text-center mt-5">
+      <p>Años de Experiencia: {{aniosExp}}</p>
+      <br>
+      <p-slider [(ngModel)]="aniosExp" (onChange)="observarAnioExp()"></p-slider>
+      <small class="text-danger mt-3" *ngIf="anioInsuficientes">
+        Años de experiencia insuficientes
+      </small>
+    </div>
+    <div class="mt-5" [formGroup]="formRegistroUsuario">
+      <p-dropdown
+        [options]="serviciosBD"
+        [filter]="true"
+        filterBy="name"
+        [showClear]="true"
+        placeholder="Seleccione un servicio"
+        optionLabel="name"
+        formControlName="servicio"
+        (onChange)="observarServicio()">
+      </p-dropdown>
+      <p-button
+        class="ml-3"
+        label="Agregar servicio"
+        icon="pi pi-plus"
+        styleClass="p-button-sm"
+        (onClick)="agregarServicio()">
+      </p-button>
+    </div>
+
+    <div class="row mt-5">
+      <div class="mt-3 shadow p-3 mb-5 bg-body rounded">
+        <p-table #dt [value]="serviciosAgregados" [rows]="10" [paginator]="true"
+                 [globalFilterFields]="['name']"
+                 [tableStyle]="{'min-width': '75rem'}" [rowHover]="true" dataKey="id"
+                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                 [showCurrentPageReport]="true">
+
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="service">Servicio
+                <p-sortIcon field="service"></p-sortIcon>
+              </th>
+              <th pSortableColumn="description" style="min-width:15rem">Descripción
+                <p-sortIcon field="description"></p-sortIcon>
+              </th>
+              <th pSortableColumn="inventoryStatus" style="min-width:10rem"></th>
+              <th></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-servi>
+            <tr>
+              <td>{{servi.nombreServicio}}</td>
+              <td>{{servi.descripcion_servicio}}</td>
+              <td>
+                <button
+                  pButton pRipple
+                  icon="pi pi-trash"
+                  class="p-button-rounded p-button-warning"
+                  (click)="eliminarServicio(servi)">
+                </button>
+              </td>
+              <td></td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="summary">
+            <div class="flex align-items-center justify-content-between">
+              Número de servicios agregados: {{serviciosAgregados ? serviciosAgregados.length : 0 }}.
+            </div>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+
+  </div>
+  <br>
+  <ng-template pTemplate="footer">
+    <p-button
+      icon="pi pi-check"
+      (onClick)="cerrarDialogo()"
+      label="Ok" styleClass="p-button-text"
+      [disabled]="buttonDialogDisabled">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<div class="card contenedor">
+  <br>
+  <form [formGroup]="formRegistroUsuario">
+    <div class="container mt-5 d-flex justify-content-start">
+      <p-card class="fadeIn second" style="width: 500px">
+        <i class="bi bi-arrow-left-short fs-1 text-primary justify-content-start row ml-3 mt-1" routerLink="/login"></i>
+        <!--Header-->
+        <div class="container text-center mt-2">
+          <div class="row">
+            <div class="col">
+              <!--              <img src="https://i.postimg.cc/GtXVQg0N/logo-op2-small-icon-only-inverted.png" alt="" width="80px">-->
+              <h3 class="fs-2 ml-3 t-registro">
+                Registrate
+              </h3>
+            </div>
+          </div>
+        </div>
+        <!--body-->
+        <!--primer form-->
+        <div class="row text-center mt-3">
+          <div *ngIf="verFormPersona" class="col">
+            <div class="fadeIn second">
+              <input
+                type="text"
+                id="frist-name"
+                type="text"
+                placeholder="Nombre"
+                pInputText formControlName="nombrePersona" (change)="validarFormLleno()">
+            </div>
+            <small *ngIf="formRegistroUsuario.get('nombrePersona').hasError('required')
+                      && formRegistroUsuario.get('nombrePersona').touched" class="text-danger">
+              Este dato es obligatorio
+            </small>
+
+            <div class="fadeIn second">
+              <input
+                type="text"
+                id="lastname"
+                name="lastname"
+                placeholder="Apellido"
+                aria-describedby="username2-help"
+                pInputText formControlName="apellidoPersona" (change)="validarFormLleno()">
+            </div>
+            <small *ngIf="formRegistroUsuario.get('apellidoPersona').hasError('required')
+                      && formRegistroUsuario.get('apellidoPersona').touched" class="text-danger">
+              Este dato es obligatorio
+            </small>
+
+            <div class="fadeIn second">
+              <input
+                type="text"
+                id="address"
+                name="address"
+                placeholder="Direccion"
+                pInputText formControlName="direccionPersona" (change)="validarFormLleno()">
+            </div>
+            <small class="text-danger" *ngIf="formRegistroUsuario.get('direccionPersona').hasError('required')
+            && formRegistroUsuario.get('direccionPersona').touched">
+              Este dato es obligatorio
+            </small>
+            <div class="fadeIn second">
+              <input
+                class="input-mask"
+                type="text"
+                id="telephone"
+                name="telephone"
+                placeholder="Telefono"
+                pInputText formControlName="telefonoPersona" (change)="validarFormLleno()">
+            </div>
+            <small *ngIf="formRegistroUsuario.get('telefonoPersona').hasError('required')
+                      && formRegistroUsuario.get('telefonoPersona').touched" class="text-danger">
+              Este dato es obligatorio
+            </small>
+            <small class="text-danger" *ngIf="formRegistroUsuario.get('telefonoPersona').hasError('maxLength')
+            && formRegistroUsuario.get('telefonoPersona').touched">
+              El numero de celular no puede tener menos o mas de 10 digitos
+            </small>
+          </div>
+        </div>
+
+        <!--segundo form-->
+        <div *ngIf="verFormUsuario" class="col text-center">
+          <div class="fadeIn second">
+            <input
+              class="input-mask"
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Email"
+              pInputText formControlName="emailPersona" (change)="validarFormLleno()">
+          </div>
+          <small *ngIf="formRegistroUsuario.get('emailPersona').hasError('required')
+                    && formRegistroUsuario.get('emailPersona').touched" class="text-danger">
+            Este dato es obligatorio
+          </small>
+
+          <div class="fadeIn second">
+            <input
+              type="text"
+              id="username"
+              name="address"
+              placeholder="Usuario"
+              pInputText formControlName="nombreUsuario" (change)="validarFormLleno()">
+          </div>
+          <small *ngIf="formRegistroUsuario.get('nombreUsuario').hasError('required')
+                    && formRegistroUsuario.get('nombreUsuario').touched" class="text-danger">
+            Este dato es obligatorio
+          </small>
+
+          <div class="fadeIn second">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Contraseña"
+              pInputText formControlName="contraseniaUsuario" (change)="validarFormLleno()">
+          </div>
+          <small *ngIf="formRegistroUsuario.get('contraseniaUsuario').hasError('required')
+                    && formRegistroUsuario.get('contraseniaUsuario').touched" class="text-danger">
+            Este dato es obligatorio
+          </small>
+          <div class="fadeIn second mt-3">
+            <p-dropdown
+              class="comboRol"
+              [options]="categorias"
+              placeholder="Seleccione un Rol"
+              optionLabel="name"
+              formControlName="rol"
+              (onChange)="observarRol()">
+            </p-dropdown>
+            <button
+              *ngIf="this.formRegistroUsuario.get('rol').value.name === 'Proveedor'"
+              pButton
+              pRipple type="button"
+              label="Abrir menu agregar servicios"
+              class="p-button-text fs-9 mb-3 mt-3"
+              (click)="verDialogoAddServi = true">
+            </button>
+          </div>
+        </div>
+        <!--footer-->
+        <br>
+        <br>
+        <br>
+        <br>
+        <div class="text-center mt-5 ">
+          <p-button *ngIf="buttonSiguiente" label="Siguiente" styleClass="p-button-sm" (onClick)="siguienteForm()"
+                    [disabled]="buttonNextDisabled"></p-button>
+          <p-button class="mr-5" *ngIf="buttonAtras" label="Anterior" styleClass="p-button-sm"
+                    (onClick)="anteriorForm()"></p-button>
+          <p-button class="ml-5" *ngIf="buttonResgister" label="Registrarme" icon="pi pi-check" styleClass="p-button-sm"
+                    (onClick)="datosForm()" [disabled]="buttonRegisterDisabled" [routerLink]="registroExitoso ? ['/login'] : []"></p-button>
+        </div>
+      </p-card>
+    </div>
+  </form>
+</div>
+
+
+
