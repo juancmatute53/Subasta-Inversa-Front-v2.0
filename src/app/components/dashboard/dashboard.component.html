@@ -1,6 +1,7 @@
 <!--suppress TypeScriptUnresolvedVariable -->
 <div class="d-flex" id="content-wrapper">
   <p-toast></p-toast>
+  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
   <!-- Sidebar -->
   <div id="sidebar-container" class="bg-primary">
     <div class="logo">
@@ -719,7 +720,6 @@
           <p-dialog header="Agregar Servicios" [(visible)]="verDialogoAddServi" [modal]="true"
                     [style]="{width: '90vw', height: '150vw'}"
                     [draggable]="false" [resizable]="true">
-            <p class="m-0">Como proveedor necesitamos que nos digas a que te dedicas y cuantos años tienes de experiencia.</p>
             <div>
               <div class="text-center mt-5">
                 <p>Años de Experiencia: {{aniosExp}}</p>

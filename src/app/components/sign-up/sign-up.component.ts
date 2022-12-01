@@ -239,7 +239,6 @@ export class SignUpComponent implements OnInit {
   }
 
   eliminarServicio(servi :any): void{
-    console.log('HOLA HOLA')
     this._confirmationService.confirm({
       message: '¿Estas seguro que quieres quitar al servicio ' + servi.name + ' de la lista?',
       header: 'Confirmación',
