@@ -107,8 +107,35 @@
 
 
       <!--Cards de subastas-->
-
       <section class="bg-mix py-3">
+        <p-accordion *ngIf="rol === 'cliente'">
+          <p-accordionTab header="Mis subastas">
+            <div *ngIf="subastasUser.length > 0" class="p-4">
+              <p-carousel
+                [value]="subastasUser"
+                [numVisible]="3"
+                [numScroll]="3"
+                [circular]="false"
+              >
+                <ng-template pTemplate="header">
+                  <h3>Subastas en estado activo</h3>
+                </ng-template>
+                <ng-template  let-subasta pTemplate="item">
+                  <p-card header="{{subasta.tituloSubasta}}" subheader="{{subasta.descripcionSubasta}}" [style]="{width: '350px'}" styleClass="p-card-shadow">
+                    <ng-template pTemplate="header">
+                      <img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}">
+                    </ng-template>
+                    <h2></h2>
+                    <ng-template pTemplate="footer">
+                      <p></p>
+                    </ng-template>
+                  </p-card>
+                  <br>
+                </ng-template>
+              </p-carousel>
+            </div>
+          </p-accordionTab>
+        </p-accordion>
         <div *ngIf="!verNotifiCliente && !verNotifiProveedor" class="container text-center">
           <div class="row">
             <div *ngIf="subastasBD.length === 0">No hay subastas para mostrar</div>
@@ -118,7 +145,7 @@
                 <ng-template pTemplate="header">
                   <p-image
                     src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}"
-                    [preview]="true">
+                    [preview]="true" width="205px" height="205px">
                   </p-image>
                   <!--<img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}" style="width: 200px; height: 100px; object-fit: cover;" (click)="">-->
                 </ng-template>
@@ -166,7 +193,7 @@
                   <ng-template pTemplate="header">
                     <p-image
                       src="http://localhost:9090/auth/subasta/photos/{{oferta.subasta.imgSubasta}}"
-                      [preview]="true" class="img-card-top w-100">
+                      [preview]="true" width="205px" height="205px">
                     </p-image>
                     <!--<img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}" style="width: 200px; height: 100px; object-fit: cover;" (click)="">-->
                   </ng-template>

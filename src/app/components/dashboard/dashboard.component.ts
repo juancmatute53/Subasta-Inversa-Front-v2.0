@@ -45,14 +45,15 @@ export class DashboardComponent implements OnInit {
   serviciosBD: Servicio[] = [];
   // @ts-ignore
   subastasBD: Subastas[] = [];
+  subastasUser: Subastas[] = [];
   subastaSelected: Subastas[] = [];
   subastaEstado : Subastas[] =[];
   subastaEstadoFin : Subastas[] =[];
-  ofertasAcomuladas: [] = [];
+  ofertasAcomuladas: Ofertas[] = [];
   ofertasPorSubasta: any[] = [];
 
   dataUsuario: [] = [];
-  listarOfertaPro: []=[];
+  listarOfertaPro: Ofertas[]=[];
   listaOfertaGanadora: Ofertas[] = [];
   listaOfertaContratada: Ofertas[] = [];
   ofertaCalificada: Ofertas[] = [];
@@ -67,6 +68,8 @@ export class DashboardComponent implements OnInit {
   formData = new FormData();
   estrellas: number = 2;
   aniosExp: number = 1;
+
+  arrayPrueba:[] = [];
 
   constructor(private _messageService: MessageService,
               private _formBuilder: FormBuilder,
@@ -83,7 +86,16 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    //Colocar if para validar rol usuario ROLE_CLIENTE ROLE_PROVEEDOR ROLE_ADMIN
+    // // @ts-ignore
+    // this.arrayPrueba.push({
+    //   // @ts-ignore
+    //   nombre: 'Marlon',
+    //   // @ts-ignore
+    //   apellido: 'Velez',
+    //   // @ts-ignore
+    //   comida: 'Guatita'
+    // });
+
     switch (this._tokenService.getAuthorities()[0]){
       case 'ROLE_CLIENTE':
         this.rol = 'cliente';
@@ -275,6 +287,10 @@ export class DashboardComponent implements OnInit {
         this.addSingle('Oferta realizada con exito.', 'success', 'Ofertar');
         this.mostrarAnimacionCarga = false;
         this.verContratarOferta = false;
+        setTimeout(()=>{
+          this.recargarPagina()
+        }, 2000);
+
       }).catch(err =>{
         this.addSingle('Error al tratar de realizar oferta.', 'error', 'Error al ofertar');
         this.mostrarAnimacionCarga = false;
@@ -303,7 +319,27 @@ export class DashboardComponent implements OnInit {
 
   obtenerSubastas(): void {
     this._subastaCrudService.obtenerSubasta().then(res => {
-      this.subastasBD = res;
+      // @ts-ignore
+      res.forEach(item =>{
+        // * Esto se hace solo para el cliente
+        // @ts-ignore
+        if (item.cliente.id_persona === this.dataUsuario.id_persona && item.estadoSubasta != 'Cerrada'){
+          this.subastasUser.push(item)
+        }else {
+          // * Esto se hace para el cliente y el proveedor
+          // @ts-ignore
+          if (item.estadoSubasta != 'Cerrada'){
+            for (let i = 0; i < this.ofertasAcomuladas.length; i++) {
+              console.log(this.ofertasAcomuladas[i].subasta.idSubasta, ' === ' ,item.idSubasta)
+              if (this.ofertasAcomuladas[i].subasta.idSubasta === item.idSubasta
+                // @ts-ignore
+                && this.ofertasAcomuladas[i].proveedor.id_persona === this.dataUsuario.id_persona){
+                this.subastasBD.push(item);
+              }
+            }
+          }
+        }
+      })
     }).catch(err => {
       this.addSingle(err.message, 'error', 'Error');
     });
@@ -688,5 +724,7 @@ export class DashboardComponent implements OnInit {
       this.addSingle(mensaje, 'error','Erro al tratar registrar usuario: ');
     });
   }
-
+  recargarPagina(): void{
+    location.reload()
+  }
 }
