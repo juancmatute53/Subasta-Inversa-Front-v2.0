@@ -1,19 +1,21 @@
 import {Cliente} from "./cliente";
+import {Servicio} from "./servicio";
 
 export class Subastas {
 
   private _idSubasta: number;
-  private _fechaInicio: string;
-  private _fechaFin: string;
+  private _fechaInicio: Date;
+  private _fechaFin: Date;
   private _estadoSubasta: string;
   private _tituloSubasta: string;
   private _horaCierreSubasta: string;
   private _descripcionSubasta: string;
   private _imgSubasta: string;
   private _cliente: Cliente;
+  private _servicio: Servicio;
 
 
-  constructor(idSubasta: number, fechaInicio: string, fechaFin: string, estadoSubasta: string, tituloSubasta: string, horaCierreSubasta: string, descripcionSubasta: string, imgSubasta: string, cliente: Cliente) {
+  constructor(idSubasta: number, fechaInicio: Date, fechaFin: Date, estadoSubasta: string, tituloSubasta: string, horaCierreSubasta: string, descripcionSubasta: string, imgSubasta: string, cliente: Cliente, servicio: Servicio) {
     this._idSubasta = idSubasta;
     this._fechaInicio = fechaInicio;
     this._fechaFin = fechaFin;
@@ -23,6 +25,7 @@ export class Subastas {
     this._descripcionSubasta = descripcionSubasta;
     this._imgSubasta = imgSubasta;
     this._cliente = cliente;
+    this._servicio = servicio;
   }
 
 
@@ -34,19 +37,19 @@ export class Subastas {
     this._idSubasta = value;
   }
 
-  get fechaInicio(): string {
+  get fechaInicio(): Date {
     return this._fechaInicio;
   }
 
-  set fechaInicio(value: string) {
+  set fechaInicio(value: Date) {
     this._fechaInicio = value;
   }
 
-  get fechaFin(): string {
+  get fechaFin(): Date {
     return this._fechaFin;
   }
 
-  set fechaFin(value: string) {
+  set fechaFin(value: Date) {
     this._fechaFin = value;
   }
 
@@ -96,5 +99,13 @@ export class Subastas {
 
   set cliente(value: Cliente) {
     this._cliente = value;
+  }
+
+  get servicio(): Servicio {
+    return this._servicio;
+  }
+
+  set servicio(value: Servicio) {
+    this._servicio = value;
   }
 }

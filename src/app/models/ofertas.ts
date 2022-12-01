@@ -21,6 +21,7 @@ export class Ofertas {
   proveedor: Proveedor;
 
 
+
   constructor(idOferta: number, percioOferta: number, fecha: Date, comentario_calificacion_oferta: string, estado: boolean, calificacion: number, subasta: Subastas, proveedor: Proveedor) {
     this.idOferta = idOferta;
     this.percioOferta = percioOferta;
@@ -31,5 +32,6 @@ export class Ofertas {
     this.subasta = subasta;
     this.proveedor = proveedor;
   }
+
 }
 

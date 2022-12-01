@@ -749,8 +749,16 @@ export class DashboardComponent implements OnInit {
 
   procesoSeleccion():void{
     this.subastasUser.forEach(subasta =>{
-      console.log('A ',subasta);
-      this._seleccionService.procesosSeleccion(subasta.idSubasta);
+
+      const fechaActual = new Date();
+      const horaActual = '0'+fechaActual.getHours() + ':'+ fechaActual.getMinutes();
+      console.log(horaActual ,' === ', subasta.horaCierreSubasta)
+
+      if (fechaActual.toLocaleDateString('es-ES') === new Date(subasta.fechaFin).toLocaleDateString('es-ES')
+      && subasta.horaCierreSubasta === horaActual){
+        this._seleccionService.procesosSeleccion(subasta.idSubasta)
+      }
     })
   }
+
 }
