@@ -124,7 +124,8 @@
                 <ng-template  let-subasta pTemplate="item">
                   <p-card header="{{subasta.tituloSubasta}}" subheader="{{subasta.descripcionSubasta}}" [style]="{width: '350px'}" styleClass="p-card-shadow">
                     <ng-template pTemplate="header">
-                      <img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}">
+                      <img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}"
+                           width="205px" height="205px">
                     </ng-template>
                     <h2></h2>
                     <ng-template pTemplate="footer">
@@ -236,7 +237,7 @@
                       </p-accordionTab>
                     </p-accordion>
                     <br>
-                    <p-button [disabled]="oferta.calificacion > 0" (onClick)="verModalCalificacion=true">Clificar</p-button>
+                    <p-button [disabled]="oferta.calificacion > 0" (onClick)="verModalCalificacion=true">Calificar</p-button>
                   </ng-template>
                 </p-card>
 
@@ -275,7 +276,8 @@
                   <ng-template pTemplate="header">
                     <p-image
                       src="http://localhost:9090/auth/subasta/photos/{{oferta.subasta.imgSubasta}}"
-                      [preview]="true">
+                      [preview]="true"
+                      width="205px" height="205px">
                     </p-image>
                     <!--<img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}" style="width: 200px; height: 100px; object-fit: cover;" (click)="">-->
                   </ng-template>
