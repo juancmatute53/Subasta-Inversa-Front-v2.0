@@ -124,7 +124,8 @@
                 <ng-template  let-subasta pTemplate="item">
                   <p-card header="{{subasta.tituloSubasta}}" subheader="{{subasta.descripcionSubasta}}" [style]="{width: '350px'}" styleClass="p-card-shadow">
                     <ng-template pTemplate="header">
-                      <img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}">
+                      <img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}"
+                           width="205px" height="205px">
                     </ng-template>
                     <h2></h2>
                     <ng-template pTemplate="footer">

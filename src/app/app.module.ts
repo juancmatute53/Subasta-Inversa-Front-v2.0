@@ -30,7 +30,6 @@ import {MessageModule} from "primeng/message";
 import {ImageModule} from "primeng/image";
 import {BadgeModule} from "primeng/badge";
 import {AccordionModule} from "primeng/accordion";
-import {FontAwesomeModule} from "@fortawesome/angular-fontawesome";
 import {TooltipModule} from "primeng/tooltip";
 import {CarouselModule} from "primeng/carousel";
 import {RatingModule} from "primeng/rating";
@@ -68,7 +67,6 @@ import {RatingModule} from "primeng/rating";
     ImageModule,
     BadgeModule,
     AccordionModule,
-    FontAwesomeModule,
     TooltipModule,
     CarouselModule,
     RatingModule
