@@ -15,6 +15,10 @@ a:hover {
   text-decoration: none;
 }
 
+p-rating{
+  color: #c50000;
+}
+
 .bg-primary { background-color: var(--primary) !important; }
 
 .bg-light { background-color: var(--light) !important; }

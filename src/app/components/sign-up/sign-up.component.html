@@ -122,7 +122,7 @@
                       && formRegistroUsuario.get('nombrePersona').touched" class="text-danger">
               Este dato es obligatorio
             </small>
-
+            <br>
             <div class="fadeIn second">
               <input
                 type="text"
@@ -136,7 +136,7 @@
                       && formRegistroUsuario.get('apellidoPersona').touched" class="text-danger">
               Este dato es obligatorio
             </small>
-
+            <br>
             <div class="fadeIn second">
               <input
                 type="text"
@@ -149,14 +149,14 @@
             && formRegistroUsuario.get('direccionPersona').touched">
               Este dato es obligatorio
             </small>
-            <div class="fadeIn second">
-              <input
-                class="input-mask"
-                type="text"
-                id="telephone"
-                name="telephone"
-                placeholder="Telefono"
-                pInputText formControlName="telefonoPersona" (change)="validarFormLleno()">
+            <br>
+            <div class="fadeIn second text-center">
+              <p-inputMask
+                mask="(593) 99 999 9999"
+                placeholder="(593) 99 999 9999"
+                [size]="45"
+                [maxlength]="10"
+                formControlName="telefonoPersona"></p-inputMask>
             </div>
             <small *ngIf="formRegistroUsuario.get('telefonoPersona').hasError('required')
                       && formRegistroUsuario.get('telefonoPersona').touched" class="text-danger">

@@ -1,4 +1,5 @@
 import {Subastas} from "./subastas";
+import {Proveedor} from "./proveedor";
 
 export class Ofertas {
 
@@ -9,16 +10,18 @@ export class Ofertas {
 
   private fecha: Date;
 
-  private comentario_calificacion_oferta: string;
+  public comentario_calificacion_oferta: string;
 
   private estado: boolean;
 
-  private calificacion: number;
+  public calificacion: number;
 
   subasta: Subastas;
 
+  proveedor: Proveedor;
 
-  constructor(idOferta: number, percioOferta: number, fecha: Date, comentario_calificacion_oferta: string, estado: boolean, calificacion: number, subasta: Subastas) {
+
+  constructor(idOferta: number, percioOferta: number, fecha: Date, comentario_calificacion_oferta: string, estado: boolean, calificacion: number, subasta: Subastas, proveedor: Proveedor) {
     this.idOferta = idOferta;
     this.percioOferta = percioOferta;
     this.fecha = fecha;
@@ -26,6 +29,7 @@ export class Ofertas {
     this.estado = estado;
     this.calificacion = calificacion;
     this.subasta = subasta;
+    this.proveedor = proveedor;
   }
 }
 

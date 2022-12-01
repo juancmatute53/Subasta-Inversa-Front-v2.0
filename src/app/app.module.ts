@@ -30,6 +30,10 @@ import {MessageModule} from "primeng/message";
 import {ImageModule} from "primeng/image";
 import {BadgeModule} from "primeng/badge";
 import {AccordionModule} from "primeng/accordion";
+import {FontAwesomeModule} from "@fortawesome/angular-fontawesome";
+import {TooltipModule} from "primeng/tooltip";
+import {CarouselModule} from "primeng/carousel";
+import {RatingModule} from "primeng/rating";
 
 @NgModule({
   declarations: [
@@ -63,7 +67,11 @@ import {AccordionModule} from "primeng/accordion";
     MessageModule,
     ImageModule,
     BadgeModule,
-    AccordionModule
+    AccordionModule,
+    FontAwesomeModule,
+    TooltipModule,
+    CarouselModule,
+    RatingModule
   ],
   providers: [
     UsuarioCrudService,

@@ -33,6 +33,27 @@ export class UsuarioCrudService {
     ).toPromise();
   }
 
+  editarUsuarioProveedor(data: any, id: number): Promise<any> {
+    //console.log(data);
+    return this._http.put('http://localhost:9090/auth/proveedor/editar/' + id,
+      data,
+      {
+        headers: this.headers
+      }
+    ).toPromise();
+  }
+
+  // * TODO CRUD USUARIO PROVEEDOR
+  editarUsuarioCliente(data: any, id: number): Promise<any> {
+    //console.log(data);
+    return this._http.put('http://localhost:9090/auth/cliente/editar/' + id,
+      data,
+      {
+        headers: this.headers
+      }
+    ).toPromise();
+  }
+
   obtenerUsuarios(): Promise<any>{
    return  this._http.get('http://localhost:9090/proveedor/listar').toPromise()
   }

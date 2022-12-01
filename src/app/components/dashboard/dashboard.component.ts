@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation} from '@angular/core';
 import {ConfirmationService, ConfirmEventType, MessageService} from "primeng/api";
 import {FormBuilder, Validators} from "@angular/forms";
 import {ServiciosService} from "../services/servicios-crud/servicios.service";
@@ -6,13 +6,12 @@ import {TokenService} from "../services/token/token.service";
 import {SubastaCrudService} from "../services/subasta/subasta-crud.service";
 import {ClienteCrudService} from "../services/cliente/cliente-crud.service";
 import {Subastas} from "../../models/subastas";
-import {LoginUsuario} from "../../models/login-usuario";
 import {ProveedorCrudService} from "../services/proveedor/proveedor-crud.service";
 import {OfertaCrudService} from "../services/oferta/oferta-crud.service";
 import {ServicioService} from "../services/serv-servicios/servicio.service";
-import {of} from "rxjs";
-import {error} from "@angular/compiler-cli/src/transformers/util";
 import {Ofertas} from "../../models/ofertas";
+import {UsuarioCrudService} from "../services/users-crud/usuario-crud.service";
+
 
 interface Servicio {
   name: string,
@@ -27,14 +26,22 @@ interface Servicio {
 export class DashboardComponent implements OnInit {
   responsiveOptions: any;
   formNuevaSubasta: any;
+  formEditarUsuario: any;
   formNuevoServicio: any;
   formNuevaOferta: any;
   isValorOferta = true;
-  displayModal = false;
-  verDialogoNotificacion = false;
-  verModalDetalle = false;
+  verContratarOferta = false;
+  verNotifiCliente = false;
+  verNotifiProveedor = false;
+  verModalCalificacion = false;
+  verDetaCalificacion = false;
+  editarUser = true;
   rol: string ='';
   mostrarAnimacionCarga = false;
+  anioInsuficientes: boolean = false;
+  buttonDialogDisabled: boolean = true;
+  verDialogoAddServi: boolean = false;
+
   serviciosBD: Servicio[] = [];
   // @ts-ignore
   subastasBD: Subastas[] = [];
@@ -47,12 +54,19 @@ export class DashboardComponent implements OnInit {
   dataUsuario: [] = [];
   listarOfertaPro: []=[];
   listaOfertaGanadora: Ofertas[] = [];
+  listaOfertaContratada: Ofertas[] = [];
+  ofertaCalificada: Ofertas[] = [];
+
+  serviciosAgregados: [] = [];
+  servicioPost: [] = [];
 
   posicionDialogOferta = 'right';
   mostrarDialogOferta = false;
   nombreUserLog: string = '';
   fechaActual: string = new Date().toLocaleDateString('es-es', {year:"numeric", month:"numeric" ,day:"numeric"});
   formData = new FormData();
+  estrellas: number = 2;
+  aniosExp: number = 1;
 
   constructor(private _messageService: MessageService,
               private _formBuilder: FormBuilder,
@@ -63,7 +77,9 @@ export class DashboardComponent implements OnInit {
               private _proveedroCrudService: ProveedorCrudService,
               private _ofertaCrudService: OfertaCrudService,
               private _servServicios: ServicioService,
-              private confirmationService: ConfirmationService) {
+              private confirmationService: ConfirmationService,
+              private _confirmationService: ConfirmationService,
+              private _usuarioCrudService: UsuarioCrudService) {
   }
 
   ngOnInit(): void {
@@ -104,11 +120,26 @@ export class DashboardComponent implements OnInit {
     this.obtenerOfertas();
     this.crearFormSubasta();
     this.crearFormOferta();
+    this.crearFormEditUser();
     this.obtenerServicios();
     this.obtenerSubastas();
   }
 
   // * TODO ClIENTE
+  crearFormEditUser(): void {
+    this.formEditarUsuario = this._formBuilder.group({
+      nombre: ['', [Validators.required]],
+      apellido: ['', [Validators.required]],
+      direccion: ['', [Validators.required]],
+      email: ['', [Validators.required]],
+      telefono: ['', [Validators.required]],
+      usuario: ['', [Validators.required]],
+      contrasenia: ['', [Validators.required]],
+      aniosExp: ['', [Validators.required]],
+      servicio: ['', [Validators.required]]
+    });
+  }
+
   crearFormSubasta(): void {
     this.formNuevaSubasta = this._formBuilder.group({
       tituloSubasta: ['', [Validators.required]],
@@ -173,8 +204,8 @@ export class DashboardComponent implements OnInit {
         }
       }
       this.formData.append('subasta' ,JSON.stringify(nuevaSubasta));
-      let rest = this._subastaCrudService.eviarSubasta(this.formData);
-      console.log(rest);
+
+      this._subastaCrudService.eviarSubasta(this.formData);
       // this._subastaCrudService.crearSubasta(this.formData).then(res => {
       //   this.addSingle('Subasta generada correctamente', 'success', 'Registro Subasta');
       // }).catch(err => {
@@ -200,15 +231,19 @@ export class DashboardComponent implements OnInit {
   crearFormOferta(): void{
     this.formNuevaOferta = this._formBuilder.group({
       precioOferta: ['', [Validators.required]],
+      comentarioCalificacion: ['', [Validators.required]],
     });
   }
 
   obtenerOfertaProveedor(): void{
     this.ofertasAcomuladas.forEach(item =>{
       // @ts-ignore
-      if (item.estado === true){
+      if (item.estado === true && item.subasta.cliente.id_persona === this.dataUsuario.id_persona){
+        this.listaOfertaContratada.push(item);
+      }
+      // @ts-ignore
+      if (item.estado === true && item.proveedor.id_persona === this.dataUsuario.id_persona){
         this.listaOfertaGanadora.push(item);
-        console.log('ES: ', this.listaOfertaGanadora);
       }
       // @ts-ignore
       if (item.proveedor.id_persona === this.dataUsuario.id_persona){
@@ -239,13 +274,13 @@ export class DashboardComponent implements OnInit {
       this._ofertaCrudService.crearOferta(oferta).then(res =>{
         this.addSingle('Oferta realizada con exito.', 'success', 'Ofertar');
         this.mostrarAnimacionCarga = false;
-        this.displayModal = false;
+        this.verContratarOferta = false;
       }).catch(err =>{
         this.addSingle('Error al tratar de realizar oferta.', 'error', 'Error al ofertar');
         this.mostrarAnimacionCarga = false;
       })
     }).catch(err =>{
-      console.log('ERR ', err)
+      this.addSingle(err.message, 'error', 'Error');
     });
   }
 
@@ -279,6 +314,8 @@ export class DashboardComponent implements OnInit {
       this.dataUsuario = res[0];
       // @ts-ignore
       this.nombreUserLog = this.dataUsuario.nombre+' '+this.dataUsuario.apellido;
+
+      //aniosExp
     }).catch(err =>{
       this.addSingle(err.message, 'error', 'Error');
     })
@@ -289,10 +326,30 @@ export class DashboardComponent implements OnInit {
       this.dataUsuario = res[0];
       // @ts-ignore
       this.nombreUserLog = this.dataUsuario.nombre+' '+this.dataUsuario.apellido;
+      // @ts-ignore
+      this.formEditarUsuario.get('nombre').setValue(this.dataUsuario.nombre)
+      // @ts-ignore
+      this.formEditarUsuario.get('apellido').setValue(this.dataUsuario.apellido)
+      // @ts-ignore
+      this.formEditarUsuario.get('direccion').setValue(this.dataUsuario.direccion)
+      // @ts-ignore
+      this.formEditarUsuario.get('email').setValue(this.dataUsuario.email)
+      // @ts-ignore
+      this.formEditarUsuario.get('telefono').setValue(this.dataUsuario.telefono)
+      // @ts-ignore
+      this.formEditarUsuario.get('aniosExp').setValue(this.dataUsuario.anios_experiencia)
+      // @ts-ignore
+      this.serviciosAgregados = this.dataUsuario.servicios;
+      this.serviciosAgregados.forEach(item =>{
+        // @ts-ignore
+        this.servicioPost.push({
+          // @ts-ignore
+          idServicio: item.idServicio
+        });
+      })
     }).catch(err =>{
       this.addSingle(err.message, 'error', 'Error');
     })
-    console.log(this.dataUsuario)
   }
 
   obtenerSubastasEstado(): void{
@@ -331,13 +388,12 @@ export class DashboardComponent implements OnInit {
       })
       this.obtenerOfertaProveedor ();
     }).catch(err =>{
-      console.log(err);
+      this.addSingle(err.message, 'error', 'Error');
     });
   }
 
   // * TODO GENERALES
   observarPrecioOferta(): void{
-    console.log('HOLA')
     if (this.formNuevaOferta.get('precioOferta').value === null){
       this.isValorOferta = true;
     }else {
@@ -347,7 +403,7 @@ export class DashboardComponent implements OnInit {
 
   observarSubastaSelected(subasta: any){
     this.subastaSelected = subasta;
-    this.displayModal = true;
+    this.verContratarOferta = true;
   }
 
   addSingle(message: string, severity: string, summary: string) {
@@ -370,7 +426,6 @@ export class DashboardComponent implements OnInit {
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        //console.log(ofer)
         this.actualizarEstadoSubasta(ofer)
         const oferta = {
           percioOferta: ofer.percioOferta,
@@ -390,6 +445,7 @@ export class DashboardComponent implements OnInit {
           this.addSingle(
             'Tu subasta ha finalizado, puedes comunicarte con '+ofer.proveedor.nombre + ' ' + ofer.proveedor.apellido,
             'success', 'Ofertar');
+          location.reload();
         }).catch(err =>{
           this.addSingle('No se ha podido efectuar la seleccion del ganador.', 'error', 'Error al ofertar');
         })
@@ -405,10 +461,10 @@ export class DashboardComponent implements OnInit {
         }
       }
     });
+
   }
 
   actualizarEstadoSubasta(oferSubasta: any) :void{
-    console.log(oferSubasta)
     const subastaActualizada = {
       tituloSubasta: oferSubasta.subasta.tituloSubasta,
       horaCierreSubasta: oferSubasta.subasta.horaCierreSubasta,
@@ -433,16 +489,204 @@ export class DashboardComponent implements OnInit {
   }
 
   verNotificaciones(): void{
-    if (this.verDialogoNotificacion === false){
-      this.verDialogoNotificacion = true
-    }else {
-      this.verDialogoNotificacion = false;
+
+    switch (this.rol){
+      case 'cliente':
+        if (this.verNotifiCliente === false){
+          this.verNotifiCliente = true
+        }else {
+          this.verNotifiCliente = false;
+        }
+        break;
+      case 'proveedor':
+        if (this.verNotifiProveedor === false){
+          this.verNotifiProveedor = true
+        }else {
+          this.verNotifiProveedor = false;
+        }
+        break;
     }
+
+
   }
 
   onFileSelected(event:any){
     const file:File = event.target.files[0];
-    console.log('FILE ', file);
     this.formData.append("fichero", file);
   }
+
+  calificarOferta(ofer: any): void{
+
+    const oferta = {
+      percioOferta: ofer.percioOferta,
+      fecha: ofer.fecha,
+      comentario_calificacion_oferta: this.formNuevaOferta.get('comentarioCalificacion').value,
+      estado: true,
+      calificacion: this.estrellas,
+      proveedor: {
+        id_persona: ofer.proveedor.id_persona
+      },
+      subasta: {
+        idSubasta: ofer.subasta.idSubasta
+      }
+    };
+
+    this._ofertaCrudService.editarOferta(oferta, ofer.idOferta).then(res =>{
+      this.addSingle(
+        'Calificacion a '+ofer.proveedor.nombre + ' ' + ofer.proveedor.apellido + ' exitosa',
+        'success', 'Calificacion');
+    }).catch(err =>{
+      this.addSingle('No se ha podido enviar tu calificación', 'error', 'Error al calificar');
+    })
+
+    this.verModalCalificacion=false
+  }
+
+  modalDetalleCalificacion(oferta: Ofertas): void{
+    this.ofertaCalificada = [];
+    // @ts-ignore
+    this.ofertaCalificada.push(oferta);
+    this.verDetaCalificacion = true;
+  }
+
+  editarUsuario(): void{
+    if (this.editarUser === true){
+      this.editarUser = false;
+    }else {
+      this.editarUser = true;
+    }
+  }
+
+  observarAnioExp(): void {
+    if (this.aniosExp < 1) {
+      this.anioInsuficientes = true;
+      this.buttonDialogDisabled = true;
+    } else {
+      this.anioInsuficientes = false;
+      this.buttonDialogDisabled = false;
+    }
+  }
+
+  observarServicio(): void {
+    if (this.formEditarUsuario.get('servicio').value) {
+      this.buttonDialogDisabled = false;
+    } else {
+      this.buttonDialogDisabled = true;
+    }
+  }
+
+  agregarServicio(): void {
+    // * Primero obtenemos las variable necesarias
+    const servicioSelect = this.formEditarUsuario.get('servicio').value;
+    // * Armamos un objeto con los datos recogidos
+    const servicioTratado = {
+      idServicio: servicioSelect.id,
+      nombreServicio: servicioSelect.name,
+      descripcion_servicio: servicioSelect.descripcion,
+    }
+    // @ts-ignore
+    // * Mandamos al array que almacenara y mostrara los datos en la tabla
+    this.serviciosAgregados.push(servicioTratado);
+    this.servicioPost.push({
+      // @ts-ignore
+      idServicio: servicioSelect.id
+    });
+  }
+
+  eliminarServicio(servi :any): void{
+    this._confirmationService.confirm({
+      message: '¿Estas seguro que quieres quitar al servicio ' + servi.name + ' de la lista?',
+      header: 'Confirmación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        // @ts-ignore
+        this.serviciosAgregados = this.serviciosAgregados.filter(val => val.idServicio !== servi.idServicio);
+        this._messageService.add({severity:'success', summary: 'Servicio eliminado', detail: 'El servicio fue eliminado de la lista.', life: 3000});
+      }
+    });
+  }
+
+  cerrarDialogo(){
+    this.verDialogoAddServi = false;
+  }
+
+
+  datosForm(){
+    const nombreP = this.formEditarUsuario.get('nombre').value;
+    const apellidoP = this.formEditarUsuario.get('apellido').value;
+    const email = this.formEditarUsuario.get('email').value;
+    const direccionP = this.formEditarUsuario.get('direccion').value;
+    const telefonoP = this.formEditarUsuario.get('telefono').value;
+    const aniosExp = this.formEditarUsuario.get('aniosExp').value;
+
+    let userCliente;
+    let userProveedor;
+
+    // * Validamos y verificamos rol seleccionado
+    switch (this.rol) {
+      case 'cliente' :
+        userCliente = {
+          nombre: nombreP,
+          apellido: apellidoP,
+          email: email,
+          telefono: telefonoP,
+          direccion: direccionP
+        }
+        this.agregarUsuarioCliente(userCliente);
+        break;
+
+      case 'proveedor':
+        userProveedor = {
+          nombre: nombreP,
+          apellido: apellidoP,
+          email: email,
+          telefono: telefonoP,
+          direccion: direccionP,
+          anios_experiencia: aniosExp,
+          servicios: this.servicioPost
+        }
+        this.agregarUsuarioProveedor(userProveedor);
+        break;
+    }
+  }
+
+  // * Registras usuarios proveedor
+  agregarUsuarioProveedor(data: any): void{
+    let mensaje_back = '';
+    let mensaje = '';
+    // @ts-ignore
+    this._usuarioCrudService.editarUsuarioProveedor(data, this.dataUsuario.id_persona)
+      .then((res) => {
+        this.addSingle(res.mensaje, 'success','Edicion exitosa');
+      }).catch((err) => {
+      if (err.error.mensaje != null){
+        mensaje_back = err.error.mensaje;
+        mensaje = mensaje_back;
+      }else {
+        mensaje = 'Error tipo: ' + err.name + ' Codigo: ' + err.status + ' debido a un error desconocido';
+      }
+      this.addSingle(mensaje, 'error','Erro al tratar registrar usuario');
+    });
+  }
+
+  // * Registras usuarios clientes
+  agregarUsuarioCliente(data: any): void{
+    let mensaje_back = '';
+    let mensaje = '';
+    // @ts-ignore
+    this._usuarioCrudService.editarUsuarioCliente(data, this.dataUsuario.id_persona)
+      .then((res) => {
+        this.addSingle(res.mensaje, 'success','Edicion exitosa');
+      }).catch((err) => {
+      if (err.error.mensaje != null){
+        mensaje_back = err.error.mensaje;
+        mensaje = mensaje_back;
+      }else {
+        mensaje = 'Error tipo: ' + err.name + ' Codigo: ' + err.status + ' debido a un error desconocido';
+      }
+      // @ts-ignore
+      this.addSingle(mensaje, 'error','Erro al tratar registrar usuario: ');
+    });
+  }
+
 }

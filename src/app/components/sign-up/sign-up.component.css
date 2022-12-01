@@ -193,11 +193,19 @@ input[type=password]:placeholder {
   color: #cccccc;
 }
 
-input[type=text] {
+p-inputMask{
   padding: 15px 32px;
   text-align: center;
-  font-size: 12px;
+  font-size: 15px;
   margin: 5px;
+  width: 85%;
+}
+
+input[type=text] {
+  padding: 15px 32px;
+  text-align: left;
+  font-size: 15px;
+  margin: 0px;
   width: 85%;
   -webkit-transition: all 0.5s ease-in-out;
   -moz-transition: all 0.5s ease-in-out;
@@ -224,8 +232,8 @@ input[type=number]::-webkit-outer-spin-button {
 
 .input-mask{
   padding: 15px 32px;
-  text-align: center;
-  font-size: 12px;
+  text-align: left;
+  font-size: 15px;
   margin: 5px;
   width: 85%;
   -webkit-transition: all 0.5s ease-in-out;

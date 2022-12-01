@@ -7,23 +7,28 @@
       <h4 class="text-light font-weight-bold mb-0">Sistema de Subastas</h4>
     </div>
     <div class="menu">
-      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalMon" class="d-block text-light p-3 border-0"><i
+      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalMon"
+         class="d-block text-light p-3 border-0"><i
         class="icon ion-md-tv lead mr-2"></i>
         Monitoreo</a>
 
-      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSub" class="d-block text-light p-3 border-0"><i
+      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSub"
+         class="d-block text-light p-3 border-0"><i
         class="icon ion-md-add-circle lead mr-2"></i>
         Nueva Subasta</a>
 
-      <a *ngIf="rol === 'admin'" data-toggle="modal" data-target="#ventanaModalCat" class="d-block text-light p-3 border-0"><i
+      <a *ngIf="rol === 'admin'" data-toggle="modal" data-target="#ventanaModalCat"
+         class="d-block text-light p-3 border-0"><i
         class="icon ion-md-bookmark lead mr-2"></i>
         Nueva Categoria</a>
 
-      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSubRealizadas" class="d-block text-light p-3 border-0"><i
+      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSubRealizadas"
+         class="d-block text-light p-3 border-0"><i
         class="icon ion-md-time lead mr-2"></i>
         Hisorial Subastas Realizadas</a>
 
-      <a *ngIf="rol === 'proveedor' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSubOfertadas" class="d-block text-light p-3 border-0"><i
+      <a *ngIf="rol === 'proveedor' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSubOfertadas"
+         class="d-block text-light p-3 border-0"><i
         class="icon ion-md-time lead mr-2"></i>
         Histoial Subasas Ofertadas</a>
 
@@ -48,13 +53,30 @@
             <button class="btn position-absolute btn-search" type="submit"><i class="icon ion-md-search"></i></button>
           </form>
           <ul class="navbar-nav ml-auto">
-            <li class="mt-3">
-              <i class="pi pi-bell mr-4 p-text-secondary" pBadge style="font-size: 22px" value="{{listaOfertaGanadora.length}}" (click)="verNotificaciones()"></i>
+            <li *ngIf="rol === 'cliente'" class="mt-2">
+              <i
+                class="bi bi-inboxes mr-4 p-text-secondary"
+                pBadge style="font-size: 22px"
+                value="{{listaOfertaContratada.length}}"
+                (click)="verNotificaciones()"
+                pTooltip="Contratos"
+                tooltipPosition="bottom"></i>
+            </li>
+            <li *ngIf="rol === 'proveedor'" class="mt-3">
+              <i
+                class="bi bi-trophy mr-4 p-text-secondary"
+                pBadge style="font-size: 22px"
+                value="{{listaOfertaGanadora.length}}"
+                (click)="verNotificaciones()"
+                pTooltip="Ofertas Ganadas"
+                tooltipPosition="bottom"></i>
             </li>
             <li class="nav-item dropdown">
               <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button"
                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <img src="https://www.pinclipart.com/picdir/big/164-1640714_user-symbol-interface-contact-phone-set-add-sign.png" class="img-fluid rounded-circle avatar mr-2"/>
+                <img
+                  src="https://www.pinclipart.com/picdir/big/164-1640714_user-symbol-interface-contact-phone-set-add-sign.png"
+                  class="img-fluid rounded-circle avatar mr-2"/>
                 {{nombreUserLog}}
               </a>
               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -86,8 +108,8 @@
 
       <!--Cards de subastas-->
 
-      <section *ngIf="verDialogoNotificacion === false" class="bg-mix py-3">
-        <div class="container text-center">
+      <section class="bg-mix py-3">
+        <div *ngIf="!verNotifiCliente && !verNotifiProveedor" class="container text-center">
           <div class="row">
             <div *ngIf="subastasBD.length === 0">No hay subastas para mostrar</div>
             <div class="col p-2 mt-2" *ngFor="let subasta of subastasBD">
@@ -103,6 +125,12 @@
                 <p>{{subasta.descripcionSubasta}}</p>
                 <p>
                   <strong>
+                    Cliente:
+                  </strong>
+                  {{subasta.cliente.nombre +' '+ subasta.cliente.apellido}}
+                </p>
+                <p>
+                  <strong>
                     Fecha Inicio:
                   </strong>
                   {{subasta.fechaInicio | date: 'dd/mm/yyyy'}}</p>
@@ -113,7 +141,8 @@
                   </strong>
                   {{subasta.fechaFin | date: 'dd/mm/yyyy'}}</p>
                 <ng-template pTemplate="footer">
-                  <button *ngIf="rol === 'proveedor' || rol === 'admin'" type="button" class="btn btn-primary" data-toggle="modal"
+                  <button *ngIf="rol === 'proveedor' || rol === 'admin'" type="button" class="btn btn-primary"
+                          data-toggle="modal"
                           (click)="observarSubastaSelected(subasta)">
                     Ofertar
                   </button>
@@ -124,7 +153,88 @@
         </div>
       </section>
 
-      <section *ngIf="verDialogoNotificacion">
+      <section *ngIf="verNotifiCliente">
+        <div>
+          <div class="container text-center">
+            <h3>Contratos realizados</h3>
+            <div class="row">
+              <div *ngIf="listaOfertaContratada.length === 0">No hay contratos realizados</div>
+              <div class="col p-2 mt-2" *ngFor="let oferta of listaOfertaContratada">
+                <!--suppress TypeScriptUnresolvedVariable -->
+                <p-card header="{{oferta.subasta.tituloSubasta}}" subheader="" [style]="{width: '460px'}"
+                        styleClass="p-card-shadow">
+                  <ng-template pTemplate="header">
+                    <p-image
+                      src="http://localhost:9090/auth/subasta/photos/{{oferta.subasta.imgSubasta}}"
+                      [preview]="true" class="img-card-top w-100">
+                    </p-image>
+                    <!--<img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}" style="width: 200px; height: 100px; object-fit: cover;" (click)="">-->
+                  </ng-template>
+                  <p>{{oferta.subasta.descripcionSubasta}}</p>
+                  <span>
+                    <strong>
+                      Fecha Inicio:
+                    </strong>
+                    {{oferta.subasta.fechaInicio | date: 'dd/mm/yyyy'}}</span>
+                  <span>
+                    <strong>
+                      Fecha Cierre:
+                    </strong>
+                    {{oferta.subasta.fechaFin | date: 'dd/mm/yyyy'}}</span>
+                  <ng-template pTemplate="footer">
+                    <p-accordion>
+                      <p-accordionTab header="Detelle del proveedor" [selected]="true">
+                        <div class="text-start">
+                          <ul>
+                            <!--suppress TypeScriptUnresolvedVariable -->
+                            <i class="bi bi-file-person"></i>
+                            <strong>
+                              Nombre :
+                            </strong> {{oferta.proveedor.nombre + ' ' + oferta.proveedor.apellido}}
+                            <li class="mt-2" style="list-style:none;">
+                              <i class="bi bi-whatsapp"></i>
+                              <strong>
+                                Telefono:
+                              </strong> {{oferta.proveedor.telefono}}
+                            </li>
+                            <li class="mt-2" style="list-style:none;">
+                              <i class="bi bi-envelope-at-fill"></i>
+                              <strong>
+                                Correo:
+                              </strong> {{oferta.proveedor.email}}
+                            </li>
+                          </ul>
+                        </div>
+                      </p-accordionTab>
+                    </p-accordion>
+                    <br>
+                    <p-button [disabled]="oferta.calificacion > 0" (onClick)="verModalCalificacion=true">Clificar</p-button>
+                  </ng-template>
+                </p-card>
+
+                <div>
+                  <p-dialog class="text-start" header="Calificación" [(visible)]="verModalCalificacion" [modal]="true"
+                            [style]="{width: '28vw'}"
+                            [draggable]="false" [resizable]="false">
+                    <p-rating [(ngModel)]="estrellas" [cancel]="false"></p-rating>
+                    <br>
+                    <form [formGroup]="formNuevaOferta">
+                      <textarea rows="5" cols="50" pInputTextarea formControlName="comentarioCalificacion" placeholder="Comentario"></textarea>
+                    </form>
+                    <ng-template pTemplate="footer">
+                      <p-button icon="pi pi-check" (click)="calificarOferta(oferta)" label="Ok"
+                                styleClass="p-button-text"></p-button>
+                    </ng-template>
+                  </p-dialog>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section *ngIf="verNotifiProveedor">
         <div>
           <div class="container text-center">
             <h3>Subastas Ganadas</h3>
@@ -161,7 +271,7 @@
                             <i class="bi bi-file-person"></i>
                             <strong>
                               Nombre :
-                            </strong> {{oferta.subasta.cliente.nombre + ' '+ oferta.subasta.cliente.apellido}}
+                            </strong> {{oferta.subasta.cliente.nombre + ' ' + oferta.subasta.cliente.apellido}}
                             <li class="mt-2" style="list-style:none;">
                               <i class="bi bi-whatsapp"></i>
                               <strong>
@@ -178,8 +288,33 @@
                         </div>
                       </p-accordionTab>
                     </p-accordion>
+                    <br>
+                    <p-button *ngIf="oferta.calificacion > 0" (onClick)="modalDetalleCalificacion(oferta)">Detalle calificación</p-button>
                   </ng-template>
                 </p-card>
+
+                <div>
+                  <p-dialog class="text-start" header="Calificación" [(visible)]="verDetaCalificacion" [modal]="true"
+                            [style]="{width: '28vw'}"
+                            [draggable]="false" [resizable]="false" *ngFor="let ofertaCali of ofertaCalificada">
+                    <p-rating [(ngModel)]="ofertaCali.calificacion" [cancel]="false" [readonly]="true"></p-rating>
+                    <br>
+                    <form [formGroup]="formNuevaOferta">
+                      <textarea
+                        rows="5"
+                        cols="50"
+                        pInputTextarea formControlName="comentarioCalificacion"
+                        placeholder="{{ofertaCali.comentario_calificacion_oferta}}"
+                        [readonly]="true">
+                      </textarea>
+                    </form>
+                    <ng-template pTemplate="footer">
+                      <p-button icon="pi pi-check" (click)="verDetaCalificacion = false" label="Ok"
+                                styleClass="p-button-text"></p-button>
+                    </ng-template>
+                  </p-dialog>
+                </div>
+
               </div>
             </div>
           </div>
@@ -198,7 +333,7 @@
 <div *ngIf="mostrarAnimacionCarga">
   <p-progressBar mode="indeterminate" [style]="{'height': '6px'}"></p-progressBar>
 </div>
-<p-dialog header="Realizar oferta" [(visible)]="displayModal" [modal]="true" [style]="{width: '50vw'}"
+<p-dialog header="Realizar oferta" [(visible)]="verContratarOferta" [modal]="true" [style]="{width: '50vw'}"
           [draggable]="false" [resizable]="false">
   <p-message severity="info"
              text="Recuerda que no podrás ver las ofertas de otros proveedores y de la misma manera los
@@ -218,7 +353,8 @@
     </div>
   </form>
   <ng-template pTemplate="footer">
-    <p-button icon="pi pi-check" (click)="ofertarSubasta()" [disabled]="isValorOferta" label="Ofertar" styleClass="p-button-text"></p-button>
+    <p-button icon="pi pi-check" (click)="ofertarSubasta()" [disabled]="isValorOferta" label="Ofertar"
+              styleClass="p-button-text"></p-button>
   </ng-template>
 </p-dialog>
 
@@ -259,7 +395,6 @@
 </div>
 
 
-
 <!--C L I E N T E-->
 
 <!--Modal de nueva subasta-->
@@ -279,7 +414,8 @@
           <div class="text-center">
             <img src="assets/add_photo.png" class="img-fluid rounded-circle" width="130px"/>
           </div>
-          <input class="form-control" type="file" id="archivo" formControlName="imagenSubasta" (change)="onFileSelected($event)">
+          <input class="form-control" type="file" id="archivo" formControlName="imagenSubasta"
+                 (change)="onFileSelected($event)">
 
           <div class="col-md-6">
             <label for="inputNombre" class="form-label">Nombre</label>
@@ -411,15 +547,18 @@
       <div class="modal-body">
         <!--Tabla-->
         <div class="card">
-          <p-table #dt [value]="subastaEstado" [rows]="10" [paginator]="true" [globalFilterFields]="['name','country.name','representative.name','status']" [tableStyle]="{'min-width': '68rem'}"
+          <p-table #dt [value]="subastaEstado" [rows]="10" [paginator]="true"
+                   [globalFilterFields]="['name','country.name','representative.name','status']"
+                   [tableStyle]="{'min-width': '68rem'}"
                    [rowHover]="true" dataKey="id"
-                   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
+                   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                   [showCurrentPageReport]="true">
             <ng-template pTemplate="caption">
               <div class="flex align-items-center justify-content-between">
                 <h5 class="m-0">Subastas en proceso</h5>
                 <span class="p-input-icon-left">
                     <i class="pi pi-search"></i>
-<!--                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />-->
+                  <!--                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />-->
                 </span>
               </div>
             </ng-template>
@@ -441,20 +580,22 @@
                 <td>{{subasta.fechaFin | date: 'dd/MM/yyyy'}}</td>
                 <td>{{subasta.estadoSubasta}}</td>
                 <td>
-                  <button pButton pRipple icon="pi pi-inbox" class="p-button-rounded p-button-success mr-2" (click)="verOfertas(subasta)"></button>
+                  <button pButton pRipple icon="pi pi-inbox" class="p-button-rounded p-button-success mr-2"
+                          (click)="verOfertas(subasta)"></button>
                 </td>
               </tr>
             </ng-template>
             <ng-template pTemplate="summary">
-<!--              <div class="flex align-items-center justify-content-between">-->
-<!--                In total there are {{products ? products.length : 0 }} products.-->
-<!--              </div>-->
+              <!--              <div class="flex align-items-center justify-content-between">-->
+              <!--                In total there are {{products ? products.length : 0 }} products.-->
+              <!--              </div>-->
             </ng-template>
           </p-table>
         </div>
 
         <!--Dialog ofertas de subasta-->
-        <p-dialog header="Ofertas recibidas" [(visible)]="mostrarDialogOferta" [position]="posicionDialogOferta" [modal]="true" [style]="{width: '50vw'}"
+        <p-dialog header="Ofertas recibidas" [(visible)]="mostrarDialogOferta" [position]="posicionDialogOferta"
+                  [modal]="true" [style]="{width: '50vw'}"
                   [draggable]="false" [resizable]="false">
 
           <div class="container">
@@ -468,13 +609,13 @@
                   styleClass="p-card-shadow">
                   <ng-template pTemplate="footer">
                     <p>
-                      <strong>Email:</strong>{{' '+ofer.proveedor.email}}
+                      <strong>Email:</strong>{{' ' + ofer.proveedor.email}}
                     </p>
                     <p>
-                      <strong>Telefono:</strong>{{' '+ofer.proveedor.email}}
+                      <strong>Telefono:</strong>{{' ' + ofer.proveedor.email}}
                     </p>
                     <p>
-                      <strong>Años Experiencia:</strong>{{' '+ofer.proveedor.anios_experiencia}}
+                      <strong>Años Experiencia:</strong>{{' ' + ofer.proveedor.anios_experiencia}}
                     </p>
                     <button (click)="confirm(ofer)" pButton icon="pi pi-check" label="Confirm"></button>
                   </ng-template>
@@ -486,7 +627,8 @@
 
 
           <ng-template pTemplate="footer">
-            <p-button icon="pi pi-check" (click)="mostrarDialogOferta=false" label="Ok" styleClass="p-button-text"></p-button>
+            <p-button icon="pi pi-check" (click)="mostrarDialogOferta=false" label="Ok"
+                      styleClass="p-button-text"></p-button>
           </ng-template>
         </p-dialog>
       </div>
@@ -496,7 +638,6 @@
     </div>
   </div>
 </div>
-
 
 
 <!--G E N E R A L E S-->
@@ -512,51 +653,137 @@
       </div>
       <div class="modal-body">
         <!--Tabla-->
-        <form class="row g-3">
+        <form class="row g-3" [formGroup]="formEditarUsuario">
+          <div class="text-right" style="cursor: pointer" (click)="editarUsuario()">
+            <small>Editar</small>
+            <i class="bi bi-pencil-square"></i>
+          </div>
           <div class="text-center">
-            <img src="assets/user-2.jpg" class="img-fluid rounded-circle" width="130px"/>
-
           </div>
           <div class="col-md-6">
             <label for="inputNombreP" class="form-label">Nombre</label>
-            <input type="text" class="form-control" id="inputNombreP">
+            <input [readonly]="editarUser" type="text" class="form-control" id="inputNombreP" formControlName="nombre">
           </div>
           <div class="col-md-6">
             <label for="inputTelefono" class="form-label">Telefono</label>
-            <input type="text" class="form-control" id="inputTelefono">
+            <input [readonly]="editarUser" type="text" class="form-control" id="inputTelefono" formControlName="telefono">
           </div>
 
           <div class="col-md-6">
             <label for="inputApellido" class="form-label">Apellido</label>
-            <input type="text" class="form-control" id="inputApellido">
-          </div>
-
-          <div class="col-md-6">
-            <label for="inputUsuario" class="form-label">Usuario</label>
-            <input type="text" class="form-control" id="inputUsuario">
+            <input [readonly]="editarUser" type="text" class="form-control" id="inputApellido" formControlName="apellido">
           </div>
 
           <div class="col-md-6">
             <label for="inputDireccion" class="form-label">Direccion</label>
-            <input type="text" class="form-control" id="inputDireccion">
-          </div>
-
-          <div class="col-md-6">
-            <label for="inputPassword" class="form-label">Contraseña</label>
-            <input type="text" class="form-control" id="inputPassword">
+            <input [readonly]="editarUser" type="text" class="form-control" id="inputDireccion" formControlName="direccion">
           </div>
 
           <div class="col-md-6">
             <label for="inputEmail" class="form-label">Email</label>
-            <input type="email" class="form-control" id="inputEmail">
+            <input [readonly]="editarUser" type="email" class="form-control" id="inputEmail" formControlName="email">
           </div>
+
+          <p-button
+            *ngIf="this.rol === 'proveedor'"
+            (onClick)="verDialogoAddServi = true"
+            [disabled]="editarUser">
+          Mis servicios</p-button>
+          <p-dialog header="Agregar Servicios" [(visible)]="verDialogoAddServi" [modal]="true"
+                    [style]="{width: '90vw', height: '150vw'}"
+                    [draggable]="false" [resizable]="true">
+            <p class="m-0">Como proveedor necesitamos que nos digas a que te dedicas y cuantos años tienes de experiencia.</p>
+            <div>
+              <div class="text-center mt-5">
+                <p>Años de Experiencia: {{aniosExp}}</p>
+                <br>
+                <p-slider [(ngModel)]="aniosExp" (onChange)="observarAnioExp()" formControlName="aniosExp"></p-slider>
+                <small class="text-danger mt-3" *ngIf="anioInsuficientes">
+                  Años de experiencia insuficientes
+                </small>
+              </div>
+              <div class="mt-5" [formGroup]="formEditarUsuario">
+                <p-dropdown
+                  [options]="serviciosBD"
+                  [filter]="true"
+                  filterBy="name"
+                  [showClear]="true"
+                  placeholder="Seleccione un servicio"
+                  optionLabel="name"
+                  formControlName="servicio"
+                  (onChange)="observarServicio()">
+                </p-dropdown>
+                <p-button
+                  class="ml-3"
+                  label="Agregar servicio"
+                  icon="pi pi-plus"
+                  styleClass="p-button-sm"
+                  (onClick)="agregarServicio()">
+                </p-button>
+              </div>
+
+              <div class="row mt-5">
+                <div class="mt-3 shadow p-3 mb-5 bg-body rounded">
+                  <p-table #dt [value]="serviciosAgregados" [rows]="10" [paginator]="true"
+                           [globalFilterFields]="['name']"
+                           [tableStyle]="{'min-width': '75rem'}" [rowHover]="true" dataKey="id"
+                           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                           [showCurrentPageReport]="true">
+
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th pSortableColumn="service">Servicio
+                          <p-sortIcon field="service"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="description" style="min-width:15rem">Descripción
+                          <p-sortIcon field="description"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="inventoryStatus" style="min-width:10rem"></th>
+                        <th></th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-servi>
+                      <tr>
+                        <td>{{servi.nombreServicio}}</td>
+                        <td>{{servi.descripcion_servicio}}</td>
+                        <td>
+                          <button
+                            pButton pRipple
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-warning"
+                            (click)="eliminarServicio(servi)">
+                          </button>
+                        </td>
+                        <td></td>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="summary">
+                      <div class="flex align-items-center justify-content-between">
+                        Número de servicios agregados: {{serviciosAgregados ? serviciosAgregados.length : 0 }}.
+                      </div>
+                    </ng-template>
+                  </p-table>
+                </div>
+              </div>
+
+            </div>
+            <br>
+            <ng-template pTemplate="footer">
+              <p-button
+                icon="pi pi-check"
+                (onClick)="cerrarDialogo()"
+                label="Ok" styleClass="p-button-text"
+                [disabled]="buttonDialogDisabled">
+              </p-button>
+            </ng-template>
+          </p-dialog>
+
         </form>
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ventanaModalPerfil2">Actualizar
-          Informacion
-        </button>
+        <p-button [disabled]="editarUser" type="button" class="btn btn-primary" data-toggle="modal" (onClick)="datosForm()">Guardar los cambios
+        </p-button>
       </div>
     </div>
   </div>
@@ -642,12 +869,14 @@
         <form class="row g-3" [formGroup]="formNuevoServicio">
           <div class="mb-3">
             <label for="nombreCategoria" class="form-label">Nombre</label>
-            <input type="text" class="form-control" id="nombreCategoria" placeholder="Ingrese el nombre categoría" formControlName="tituloServicio">
+            <input type="text" class="form-control" id="nombreCategoria" placeholder="Ingrese el nombre categoría"
+                   formControlName="tituloServicio">
           </div>
 
           <div class="mb-3">
             <label for="descripcionCategoria" class="form-label">Descripcion</label>
-            <input type="text" class="form-control" id="descripcionCategoria" placeholder="Ingrese descripcion" formControlName="tituloDescripcion">
+            <input type="text" class="form-control" id="descripcionCategoria" placeholder="Ingrese descripcion"
+                   formControlName="tituloDescripcion">
           </div>
         </form>
 

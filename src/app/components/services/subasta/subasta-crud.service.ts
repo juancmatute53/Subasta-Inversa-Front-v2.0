@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {MessageService} from "primeng/api";
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,7 @@ export class SubastaCrudService {
 
   headers = new HttpHeaders().append('Content-Type', 'application/json')
 
-  constructor(private _http: HttpClient) {
+  constructor(private _http: HttpClient, private _messageService: MessageService) {
   }
 
   crearSubasta(data: any): Promise<any> {
@@ -45,8 +46,10 @@ export class SubastaCrudService {
 
   eviarSubasta(formData: FormData): void{
     this._http.post<any>('http://localhost:9090/auth/subasta/crear', formData).subscribe(data => {
-      return 'Subasta generada correctamente';
-    });
+        this._messageService.add({severity: 'success', summary: 'Subasta Registrada', detail: 'La subasta se registro correctamente'});
+        location.reload();
+    },
+      err => this._messageService.add({severity: 'error', summary: 'Error', detail: 'Hubo un error al tratar de registrar la subasta'}));
   }
 }
 
