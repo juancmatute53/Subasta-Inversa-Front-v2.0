@@ -11,7 +11,6 @@ export class OfertaCrudService {
   constructor(private _http: HttpClient) { }
 
   crearOferta(data: any): Promise<any> {
-    console.log(data);
     return this._http.post('http://localhost:9090/auth/oferta/crear',
       data,
       {

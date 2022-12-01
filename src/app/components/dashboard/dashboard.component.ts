@@ -11,6 +11,8 @@ import {OfertaCrudService} from "../services/oferta/oferta-crud.service";
 import {ServicioService} from "../services/serv-servicios/servicio.service";
 import {Ofertas} from "../../models/ofertas";
 import {UsuarioCrudService} from "../services/users-crud/usuario-crud.service";
+import {SeleccionDeGanadorService} from "../services/auto-seleccion/seleccion-de-ganador.service";
+import {of} from "rxjs";
 
 
 interface Servicio {
@@ -82,20 +84,11 @@ export class DashboardComponent implements OnInit {
               private _servServicios: ServicioService,
               private confirmationService: ConfirmationService,
               private _confirmationService: ConfirmationService,
-              private _usuarioCrudService: UsuarioCrudService) {
+              private _usuarioCrudService: UsuarioCrudService,
+              private _seleccionService: SeleccionDeGanadorService) {
   }
 
   ngOnInit(): void {
-    // // @ts-ignore
-    // this.arrayPrueba.push({
-    //   // @ts-ignore
-    //   nombre: 'Marlon',
-    //   // @ts-ignore
-    //   apellido: 'Velez',
-    //   // @ts-ignore
-    //   comida: 'Guatita'
-    // });
-
     switch (this._tokenService.getAuthorities()[0]){
       case 'ROLE_CLIENTE':
         this.rol = 'cliente';
@@ -318,7 +311,17 @@ export class DashboardComponent implements OnInit {
   }
 
   obtenerSubastas(): void {
+    const subastasOfertada: Ofertas[] = [];
+    const subastasLimpias: Subastas[] = [];
     this._subastaCrudService.obtenerSubasta().then(res => {
+
+      this.ofertasAcomuladas.forEach(oferta =>{
+        // @ts-ignore
+        if (oferta.proveedor.id_persona === this.dataUsuario.id_persona){
+          subastasOfertada.push(oferta);
+        }
+      })
+
       // @ts-ignore
       res.forEach(item =>{
         // * Esto se hace solo para el cliente
@@ -327,19 +330,33 @@ export class DashboardComponent implements OnInit {
           this.subastasUser.push(item)
         }else {
           // * Esto se hace para el cliente y el proveedor
-          // @ts-ignore
-          if (item.estadoSubasta != 'Cerrada'){
-            for (let i = 0; i < this.ofertasAcomuladas.length; i++) {
-              console.log(this.ofertasAcomuladas[i].subasta.idSubasta, ' === ' ,item.idSubasta)
-              if (this.ofertasAcomuladas[i].subasta.idSubasta === item.idSubasta
-                // @ts-ignore
-                && this.ofertasAcomuladas[i].proveedor.id_persona === this.dataUsuario.id_persona){
-                this.subastasBD.push(item);
-              }
-            }
+          if (item.estadoSubasta != 'Cerrada' && this.rol != 'proveedor'){
+            console.log('CLIENTE')
+            this.subastasBD.push(item);
+          }
+          if (item.estadoSubasta != 'Cerrada' && this.rol === 'proveedor'){
+            console.log('PROVEEDOR')
+            this.subastasBD.push(item);
           }
         }
       })
+
+      //this.servicioPost = this.servicioPost.filter(val => val.idServicio !== servi.idServicio);
+      if (this.rol === 'proveedor'){
+        // @ts-ignore
+        //console.log(this.dataUsuario.id_persona)
+        // @ts-ignore
+        this._subastaCrudService.obtenerSubastaNoPuja(this.dataUsuario.id_persona).then(res =>{
+          console.log(res)
+          // @ts-ignore
+          res.forEach(item =>{
+            this.subastasBD = this.subastasBD.filter(value => value.idSubasta != item.idSubasta)
+          })
+        }).catch(err =>{
+          console.log(err)
+        })
+      }
+      this.procesoSeleccion();
     }).catch(err => {
       this.addSingle(err.message, 'error', 'Error');
     });
@@ -728,5 +745,12 @@ export class DashboardComponent implements OnInit {
   }
   recargarPagina(): void{
     location.reload()
+  }
+
+  procesoSeleccion():void{
+    this.subastasUser.forEach(subasta =>{
+      console.log('A ',subasta);
+      this._seleccionService.procesosSeleccion(subasta.idSubasta);
+    })
   }
 }
