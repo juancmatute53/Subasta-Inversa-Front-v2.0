@@ -637,6 +637,8 @@ export class DashboardComponent implements OnInit {
       accept: () => {
         // @ts-ignore
         this.serviciosAgregados = this.serviciosAgregados.filter(val => val.idServicio !== servi.idServicio);
+        // @ts-ignore
+        this.servicioPost = this.servicioPost.filter(val => val.idServicio !== servi.idServicio);
         this._messageService.add({severity:'success', summary: 'Servicio eliminado', detail: 'El servicio fue eliminado de la lista.', life: 3000});
       }
     });
@@ -668,7 +670,7 @@ export class DashboardComponent implements OnInit {
           telefono: telefonoP,
           direccion: direccionP
         }
-        this.agregarUsuarioCliente(userCliente);
+        this.actualizarUsuarioCliente(userCliente);
         break;
 
       case 'proveedor':
@@ -681,13 +683,13 @@ export class DashboardComponent implements OnInit {
           anios_experiencia: aniosExp,
           servicios: this.servicioPost
         }
-        this.agregarUsuarioProveedor(userProveedor);
+        this.actualizarUsuarioProveedor(userProveedor);
         break;
     }
   }
 
   // * Registras usuarios proveedor
-  agregarUsuarioProveedor(data: any): void{
+  actualizarUsuarioProveedor(data: any): void{
     let mensaje_back = '';
     let mensaje = '';
     // @ts-ignore
@@ -706,7 +708,7 @@ export class DashboardComponent implements OnInit {
   }
 
   // * Registras usuarios clientes
-  agregarUsuarioCliente(data: any): void{
+  actualizarUsuarioCliente(data: any): void{
     let mensaje_back = '';
     let mensaje = '';
     // @ts-ignore

@@ -131,6 +131,7 @@ export class SignUpComponent implements OnInit {
   // * Obtenemo los servicios
   obtenerServicios(): void {
     // * hacemos la peticion al servicio
+    this.serviciosBD.push({name: 'Otro', descripcion: 'Cualquier servicio no registrado'});
     this._servios.obtenerServicios().then(res => {
       // @ts-ignore
       // * recorremos el res que nos deja la promesa
@@ -239,7 +240,6 @@ export class SignUpComponent implements OnInit {
   }
 
   eliminarServicio(servi :any): void{
-    console.log('HOLA HOLA')
     this._confirmationService.confirm({
       message: '¿Estas seguro que quieres quitar al servicio ' + servi.name + ' de la lista?',
       header: 'Confirmación',
