@@ -156,6 +156,7 @@
                 placeholder="(593) 99 999 9999"
                 [size]="45"
                 [maxlength]="10"
+                (change)="validarFormLleno()"
                 formControlName="telefonoPersona"></p-inputMask>
             </div>
             <small *ngIf="formRegistroUsuario.get('telefonoPersona').hasError('required')

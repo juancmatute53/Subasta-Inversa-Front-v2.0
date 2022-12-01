@@ -66,7 +66,7 @@ export class SignUpComponent implements OnInit {
       apellidoPersona: ['', [Validators.required]],
       emailPersona: ['', [Validators.required, Validators.email]],
       direccionPersona: ['', [Validators.required]],
-      telefonoPersona: ['', [Validators.required, Validators.maxLength(10)]],
+      telefonoPersona: ['', [Validators.required]],
       aniosExpProveedor: ['', [Validators.required]],
       nombreUsuario: ['', [Validators.required]],
       contraseniaUsuario: ['', [Validators.required]],
