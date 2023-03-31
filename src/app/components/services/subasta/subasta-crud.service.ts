@@ -36,6 +36,10 @@ export class SubastaCrudService {
     return this._http.get('http://localhost:9090/auth/subasta/listar').toPromise();
   }
 
+  obtenerSubastaNoPuja(id: any): Promise<any> {
+    return this._http.get('http://localhost:9090/auth/subasta/listar/NoPuja/'+id).toPromise();
+  }
+
   filtrarSubasta(filtro: string): Promise<any> {
     return this._http.get('http://localhost:9090/auth/subasta/listar/' + filtro).toPromise();
   }

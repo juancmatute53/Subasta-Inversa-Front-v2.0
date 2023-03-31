@@ -16,22 +16,22 @@
       <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSub"
          class="d-block text-light p-3 border-0"><i
         class="icon ion-md-add-circle lead mr-2"></i>
-        Nueva Subasta</a>
+        Nueva subasta</a>
 
       <a *ngIf="rol === 'admin'" data-toggle="modal" data-target="#ventanaModalCat"
          class="d-block text-light p-3 border-0"><i
         class="icon ion-md-bookmark lead mr-2"></i>
-        Nueva Categoria</a>
+        Nueva categoria</a>
 
       <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSubRealizadas"
          class="d-block text-light p-3 border-0"><i
         class="icon ion-md-time lead mr-2"></i>
-        Hisorial Subastas Realizadas</a>
+        Historial subastas realizadas</a>
 
       <a *ngIf="rol === 'proveedor' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSubOfertadas"
          class="d-block text-light p-3 border-0"><i
         class="icon ion-md-time lead mr-2"></i>
-        Histoial Subasas Ofertadas</a>
+        Historial subastas ofertadas</a>
 
     </div>
   </div>
@@ -124,7 +124,8 @@
                 <ng-template  let-subasta pTemplate="item">
                   <p-card header="{{subasta.tituloSubasta}}" subheader="{{subasta.descripcionSubasta}}" [style]="{width: '350px'}" styleClass="p-card-shadow">
                     <ng-template pTemplate="header">
-                      <img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}">
+                      <img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}"
+                           width="205px" height="205px">
                     </ng-template>
                     <h2></h2>
                     <ng-template pTemplate="footer">
@@ -236,7 +237,7 @@
                       </p-accordionTab>
                     </p-accordion>
                     <br>
-                    <p-button [disabled]="oferta.calificacion > 0" (onClick)="verModalCalificacion=true">Clificar</p-button>
+                    <p-button [disabled]="oferta.calificacion > 0" (onClick)="verModalCalificacion=true">Calificar</p-button>
                   </ng-template>
                 </p-card>
 
@@ -275,7 +276,8 @@
                   <ng-template pTemplate="header">
                     <p-image
                       src="http://localhost:9090/auth/subasta/photos/{{oferta.subasta.imgSubasta}}"
-                      [preview]="true">
+                      [preview]="true"
+                      width="205px" height="205px">
                     </p-image>
                     <!--<img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}" style="width: 200px; height: 100px; object-fit: cover;" (click)="">-->
                   </ng-template>
@@ -442,31 +444,47 @@
           <div class="text-center">
             <img src="assets/add_photo.png" class="img-fluid rounded-circle" width="130px"/>
           </div>
-          <input class="form-control" type="file" id="archivo" formControlName="imagenSubasta"
-                 (change)="onFileSelected($event)">
-
+          <p>Solo se aceptan formatos tipo imagen (.png, .jpg, .jpeg, ect...)</p>
+         <input class="form-control" type="file" id="archivo" formControlName="imagenSubasta"
+                 (change)="onFileSelected($event)"  accept="image/*">
           <div class="col-md-6">
-            <label for="inputNombre" class="form-label">Nombre</label>
+            <label for="inputNombre" class="form-label"><span style="color: #c50000">*</span>Titulo para servicio solicitado</label>
             <input type="text" class="form-control" id="inputNombre" formControlName="tituloSubasta">
+            <small *ngIf="formNuevaSubasta.get('tituloSubasta').hasError('required')
+                      && formNuevaSubasta.get('tituloSubasta').touched" class="text-danger">
+              Este dato es obligatorio
+            </small>
           </div>
           <div class="col-md-6">
-            <label for="inputFechI" class="form-label">Fecha de inicio</label>
+            <label for="inputFechI" class="form-label"><span style="color: #c50000">*</span>Fecha de inicio</label>
             <input type="date" class="form-control" [placeholder]="fechaActual" id="inputFechI"
                    formControlName="fechaInicioSubasta">
+            <small *ngIf="formNuevaSubasta.get('fechaInicioSubasta').hasError('required')
+                      && formNuevaSubasta.get('fechaInicioSubasta').touched" class="text-danger">
+              Este dato es obligatorio
+            </small>
           </div>
 
           <div class="col-md-6">
-            <label for="inputDes" class="form-label">Descripcion</label>
+            <label for="inputDes" class="form-label"><span style="color: #c50000">*</span>Descripcion</label>
             <input type="text" class="form-control" id="inputDes" formControlName="descripcionSubasta">
+            <small *ngIf="formNuevaSubasta.get('descripcionSubasta').hasError('required')
+                      && formNuevaSubasta.get('descripcionSubasta').touched" class="text-danger">
+              Este dato es obligatorio
+            </small>
           </div>
 
           <div class="col-md-6">
-            <label for="inputFech" class="form-label">Fecha de cierre</label>
+            <label for="inputFech" class="form-label"><span style="color: #c50000">*</span>Fecha de cierre</label>
             <input type="date" class="form-control" id="inputFech" formControlName="fechaFinSubasta">
+            <small *ngIf="formNuevaSubasta.get('fechaFinSubasta').hasError('required')
+                      && formNuevaSubasta.get('fechaFinSubasta').touched" class="text-danger">
+              Este dato es obligatorio
+            </small>
           </div>
 
           <div class="col-md-6">
-            <label class="form-label">Servicio solicitado</label>
+            <label class="form-label"><span style="color: #c50000">*</span>Categoria</label>
             <br>
             <p-dropdown
               [options]="serviciosBD"
@@ -477,17 +495,25 @@
               optionLabel="name"
               formControlName="servioSolicitado">
             </p-dropdown>
+            <small *ngIf="formNuevaSubasta.get('servioSolicitado').hasError('required')
+                      && formNuevaSubasta.get('servioSolicitado').touched" class="text-danger">
+              Este dato es obligatorio
+            </small>
           </div>
 
           <div class="col-md-6">
-            <label for="inputHc" class="form-label">Hora de cierre</label>
+            <label for="inputHc" class="form-label"><span style="color: #c50000">*</span>Hora de cierre</label>
             <input type="time" class="form-control" id="inputHc" formControlName="horaCierreSubasta">
+            <small *ngIf="formNuevaSubasta.get('horaCierreSubasta').hasError('required')
+                      && formNuevaSubasta.get('horaCierreSubasta').touched" class="text-danger">
+              Este dato es obligatorio
+            </small>
           </div>
         </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="crearSubasta()">Agregar Subasta</button>
+        <button type="button" class="btn btn-primary" (click)="crearSubasta()" [disabled]="!formNuevaSubasta.valid">Agregar Subasta</button>
       </div>
     </div>
   </div>
