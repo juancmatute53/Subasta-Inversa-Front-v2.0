@@ -12,7 +12,7 @@ export class Ofertas {
 
   public comentario_calificacion_oferta: string;
 
-  private estado: boolean;
+  public estado: boolean;
 
   public calificacion: number;
 
