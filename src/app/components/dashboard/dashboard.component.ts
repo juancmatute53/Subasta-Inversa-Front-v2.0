@@ -88,6 +88,7 @@ export class DashboardComponent implements OnInit {
               private _seleccionService: SeleccionDeGanadorService) {
   }
   ngOnInit(): void {
+
     // En el método ngOnInit se obtiene el rol del usuario que ha iniciado sesión a través del servicio _tokenService.
     switch (this._tokenService.getAuthorities()[0]) {
       // Si el rol es 'ROLE_CLIENTE', se realizan las siguientes acciones:
@@ -849,7 +850,7 @@ export class DashboardComponent implements OnInit {
         }
 
         // Verificar si la subasta ya finalizó y si la hora actual es menor o igual a la hora de cierre de la subasta
-        if (fechaActual.toLocaleDateString('es-ES') === new Date(subasta.fechaFin).toLocaleDateString('es-ES') && subasta.horaCierreSubasta >= horaActual) {
+        if (fechaActual.toLocaleDateString('es-ES') === new Date(subasta.fechaFin).toLocaleDateString('es-ES') &&  horaActual >= subasta.horaCierreSubasta) {
           // Llamar al servicio de selección para filtrar las ofertas de la subasta
           this._seleccionService.filtroOfertas(subasta.idSubasta);
         }

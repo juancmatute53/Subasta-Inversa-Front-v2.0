@@ -3,6 +3,8 @@ import {OfertaCrudService} from "../oferta/oferta-crud.service";
 import {HttpClient} from "@angular/common/http";
 import {SubastaCrudService} from "../subasta/subasta-crud.service";
 import {MessageService} from "primeng/api";
+import {NoticeService} from "../notificacion/notice.service";
+import {Ofertas} from "../../../models/ofertas";
 
 @Injectable({
   providedIn: 'root'
@@ -14,60 +16,78 @@ export class SeleccionDeGanadorService {
   // * Para realizar la subasta inversa de servicios, necesitas ordenar las ofertas por precio de forma ascendente
   // y luego seleccionar la oferta con el precio más bajo. Puedes hacer esto utilizando la función Array.sort() de JavaScript,
   // que ordena un array según un criterio específico.
-  constructor(private _ofertaCrudService: OfertaCrudService, private _http: HttpClient,
-              private _subastaCrudService: SubastaCrudService, private _messageService: MessageService) {
+  constructor(private _ofertaCrudService: OfertaCrudService,
+              private _http: HttpClient,
+              private _subastaCrudService: SubastaCrudService,
+              private _messageService: MessageService,
+              private _notificacionService: NoticeService) {
   }
 // Este método recibe un identificador de subasta, filtra las ofertas por ese identificador,
 // las ordena por precio de forma ascendente y selecciona la oferta ganadora (la que tiene el precio más bajo).
   filtroOfertas(id: number): void {
-    // Definimos una interfaz para la estructura de los objetos que representa las ofertas
-    interface Oferta {
-      subasta: {
-        idSubasta: number;
-        fechaInicio: string;
-        fechaFin: string;
-        estadoSubasta: string;
-        tituloSubasta: string;
-        // otros atributos de la subasta
-      },
-      proveedor: {
-        id_persona: number;
-        nombre: string;
-        apellido: string;
-        email: string;
-        telefono: string;
-        // otros atributos del proveedor
-      },
-      //precioOferta: number;
-      estado: boolean;
-      fecha: string;
-      comentario_calificacion_oferta: string;
-      calificacion: number;
-      // otros atributos de la oferta
-      percioOferta: number;
-    }
 
     // Obtenemos todas las ofertas disponibles
     this._ofertaCrudService.obtenerOferta().then(res => {
       // Filtrar las ofertas por el identificador de la subasta
-      const ofertas: Oferta[] = res.filter((oferta: Oferta) => oferta.subasta.idSubasta === id);
+      const ofertas: Ofertas[] = res.filter((oferta: Ofertas) => oferta.subasta.idSubasta === id);
+
+      // Creamos un array de objetos con los números de teléfono y los correos electrónicos de las ofertas que cumplen la
+      // condición y tienen estos datos definidos
+      const telefonosYCorreos: { telefono?: string, correo?: string }[] = ofertas
+        // Filtramos solo las ofertas que tienen un número de teléfono o correo electrónico definido (no son undefined ni null)
+        .filter(oferta => oferta.proveedor.telefono || oferta.proveedor.email)
+        // Extraemos tanto los números de teléfono como los correos electrónicos de las ofertas que pasaron el filtro anterior
+        .map(oferta => ({ telefono: oferta.proveedor.telefono, email: oferta.proveedor.email, subasta: oferta.subasta }));
 
       // Ordenar las ofertas por precio de forma ascendente
-      ofertas.sort((a: Oferta, b: Oferta) => a.percioOferta - b.percioOferta);
+      ofertas.sort((a: Ofertas, b: Ofertas) => a.percioOferta - b.percioOferta);
 
       // Seleccionar la oferta ganadora (la que tiene el precio más bajo)
-      const ofertaGanadora: Oferta = ofertas[0];
+      const ofertaGanadora: Ofertas = ofertas[0];
 
       // Verificar si hay más de una oferta ganadora o si hay empates
-      const precios = ofertas.map((oferta: Oferta) => oferta.percioOferta);
+      const precios = ofertas.map((oferta: Ofertas) => oferta.percioOferta);
       const precioMinimo = Math.min(...precios);
       const cantidadPreciosMinimos = precios.filter((precio: number) => precio === precioMinimo).length;
 
       // Si hay más de una oferta ganadora o si hay empates, se muestra un mensaje y se actualiza el estado de la subasta
       if (cantidadPreciosMinimos > 1) {
         this.addSingle('La subasta ha sido cerrada sin ganador', 'warn', 'Subasta cerrada');
+        this.enviarNotificacion(`Lastimosamente la subasta *${ofertaGanadora.subasta.tituloSubasta}* a cerrado sin ganadores.`, telefonosYCorreos);
         this.actualizarEstadoSubasta(ofertas[0].subasta);
       } else {
+
+        // Obtener los números de teléfono de los perdedores
+        const datosPerdedores = ofertas
+          .filter((oferta: Ofertas) => oferta.proveedor.telefono && oferta.proveedor.telefono !== ofertaGanadora.proveedor.telefono)
+          .map((oferta: Ofertas) => [{ telefono: oferta.proveedor.telefono, email: oferta.proveedor.email }]);
+
+        // Enviamos notificacion al ganador de la subasta
+        this.enviarEmail(
+          ofertaGanadora.proveedor.email,
+          `Usted ha sido el gran gandor en la subasta de ${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido}
+          Subasta con el titulo de ${ofertaGanadora.subasta.tituloSubasta}`
+        );
+
+        this.enviarWhatsapp(
+          `Usted ha sido el gran gandor en la subasta de *${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido}'* +
+          'Subasta con el titulo de *${ofertaGanadora.subasta.tituloSubasta}*`,
+          ofertaGanadora.proveedor.telefono
+        );
+
+        // Enviamos notificacion a el o los perdedores
+        datosPerdedores.forEach((element, index) =>{
+          this.enviarEmail(
+            element[index].email,
+            `Usted ha sido el gran gandor en la subasta de ${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido} Subasta con el titulo de ${ofertaGanadora.subasta.tituloSubasta}`
+          );
+
+          this.enviarWhatsapp(
+            `Usted no ha sido escogido en la subasta de *${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido}'* Subasta con el titulo de *${ofertaGanadora.subasta.tituloSubasta}*`,
+            element[index].telefono
+          );
+        })
+
         // Si solo hay una oferta ganadora, se muestra un mensaje con la información de la oferta y se actualiza su estado
         this.addSingle(`La oferta ganadora es la de ${ofertaGanadora.proveedor.nombre + ' ' + ofertaGanadora.proveedor.apellido} por un precio de ${'$' + ofertaGanadora.percioOferta}`, 'success', 'Subasta finalizada');
         this.actualizarEstadoSubasta(ofertas);
@@ -87,6 +107,8 @@ export class SeleccionDeGanadorService {
       estadoSubasta: 'Cerrada', // Se sobrescribe el valor de estadoSubasta
     };
 
+    this.enviarNotificacion(`Tu subasta *${subasta.tituloSubasta}* a finalizado. Puedes revisar tu panel en NextSharp`, subasta.cliente);
+
     // Se llama al método editarSubasta del servicio correspondiente, enviando como
     // parámetros la subasta actualizada y su identificador
     this._subastaCrudService.editarSubasta(subastaActualizada, subasta.idSubasta)
@@ -101,7 +123,6 @@ export class SeleccionDeGanadorService {
   }
 
   actualizarOferta(ofer: any): void {
-    console.log('OFERTA GANADORA ', ofer.percioOferta);
     // Se crea un objeto con las propiedades actualizadas de la oferta
     const oferta = {
       percioOferta: ofer.percioOferta,
@@ -134,6 +155,42 @@ export class SeleccionDeGanadorService {
       })
   }
 
+  enviarNotificacion(mensaje: string, data: any): void {
+    if (Array.isArray(data)) {
+      data.forEach(element => {
+        this.enviarEmail(element.email, mensaje);
+        console.log('TEL ', element.telefono)
+        this.enviarWhatsapp(element.telefono, mensaje);
+      })
+    } else if (typeof data === 'object') {
+      this.enviarEmail(data.email, mensaje);
+      this.enviarWhatsapp(mensaje, data.telefono)
+    } else {
+      console.log('NO ES NADA')
+      this.addSingle('No se puedo enviar notificaciones.', 'error', 'Error al enviar mensaje de notificacion.');
+    }
+  }
+
+
+  enviarEmail(email: string, mensaje: string): void{
+    const msjMail = {
+      asunto: 'La subasta a finalizado',
+      email: email,
+      mensaje: mensaje,
+    };
+
+    this._notificacionService.enviarMensaje(msjMail);
+  }
+
+  enviarWhatsapp(mensaje: string, numero: string): void{
+    const msjWhatsapp = {
+      message: mensaje,
+      phone: numero
+    }
+
+    this._notificacionService.enviarMensajeWhatsapp(msjWhatsapp);
+  }
+
   /**
    * Agrega un mensaje en pantalla con una duración de 10 segundos, y luego recarga la página
    * @param message - mensaje a mostrar
@@ -146,7 +203,8 @@ export class SeleccionDeGanadorService {
 
     // Luego de 10 segundos, recarga la página
     setTimeout(() => {
-      location.reload();
+      //location.reload();
+
     }, 10000);
   }
 }

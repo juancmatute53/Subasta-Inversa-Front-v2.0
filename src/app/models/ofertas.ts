@@ -6,9 +6,9 @@ export class Ofertas {
 
   private idOferta: number;
 
-  private percioOferta: number;
+  public percioOferta: number;
 
-  private fecha: Date;
+  public fecha: Date;
 
   public comentario_calificacion_oferta: string;
 
