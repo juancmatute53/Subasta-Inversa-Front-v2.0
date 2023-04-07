@@ -836,11 +836,12 @@ export class DashboardComponent implements OnInit {
   }
 
   procesoSeleccion(): void {
-    if (Array.isArray(this.subastasUser)) {
+    console.log('A')
+    if (Array.isArray(this.subastasUser) && this.subastasUser !== undefined) {
+      console.log('B')
       this.subastasUser.forEach(subasta => {
         const fechaActual = new Date();
         let horaActual = fechaActual.getHours().toString().padStart(2, '0') + ':' + fechaActual.getMinutes().toString().padStart(2, '0');
-
         // Convertir 00:00 a 12:00 AM para la hora actual y la hora de cierre de la subasta
         if (horaActual.startsWith('00:')) {
           horaActual = '12:' + horaActual.slice(3) + ' AM';
@@ -848,9 +849,8 @@ export class DashboardComponent implements OnInit {
         if (subasta.horaCierreSubasta.startsWith('00:')) {
           subasta.horaCierreSubasta = '12:' + subasta.horaCierreSubasta.slice(3) + ' AM';
         }
-
         // Verificar si la subasta ya finalizó y si la hora actual es menor o igual a la hora de cierre de la subasta
-        if (fechaActual.toLocaleDateString('es-ES') === new Date(subasta.fechaFin).toLocaleDateString('es-ES') &&  horaActual >= subasta.horaCierreSubasta) {
+        if (fechaActual.toLocaleDateString('es-ES') >= new Date(subasta.fechaFin).toLocaleDateString('es-ES') &&  horaActual >= subasta.horaCierreSubasta) {
           // Llamar al servicio de selección para filtrar las ofertas de la subasta
           this._seleccionService.filtroOfertas(subasta.idSubasta);
         }

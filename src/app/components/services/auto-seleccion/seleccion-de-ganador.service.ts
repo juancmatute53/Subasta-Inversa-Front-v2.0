@@ -30,7 +30,6 @@ export class SeleccionDeGanadorService {
     this._ofertaCrudService.obtenerOferta().then(res => {
       // Filtrar las ofertas por el identificador de la subasta
       const ofertas: Ofertas[] = res.filter((oferta: Ofertas) => oferta.subasta.idSubasta === id);
-
       // Creamos un array de objetos con los números de teléfono y los correos electrónicos de las ofertas que cumplen la
       // condición y tienen estos datos definidos
       const telefonosYCorreos: { telefono?: string, correo?: string }[] = ofertas
@@ -68,7 +67,6 @@ export class SeleccionDeGanadorService {
           `Usted ha sido el gran gandor en la subasta de ${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido}
           Subasta con el titulo de ${ofertaGanadora.subasta.tituloSubasta}`
         );
-
         this.enviarWhatsapp(
           `Usted ha sido el gran gandor en la subasta de *${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido}'* +
           'Subasta con el titulo de *${ofertaGanadora.subasta.tituloSubasta}*`,
@@ -76,18 +74,17 @@ export class SeleccionDeGanadorService {
         );
 
         // Enviamos notificacion a el o los perdedores
-        datosPerdedores.forEach((element, index) =>{
+        datosPerdedores.forEach((element) =>{
           this.enviarEmail(
-            element[index].email,
+            element[0].email,
             `Usted ha sido el gran gandor en la subasta de ${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido} Subasta con el titulo de ${ofertaGanadora.subasta.tituloSubasta}`
           );
 
           this.enviarWhatsapp(
             `Usted no ha sido escogido en la subasta de *${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido}'* Subasta con el titulo de *${ofertaGanadora.subasta.tituloSubasta}*`,
-            element[index].telefono
+            element[0].telefono
           );
         })
-
         // Si solo hay una oferta ganadora, se muestra un mensaje con la información de la oferta y se actualiza su estado
         this.addSingle(`La oferta ganadora es la de ${ofertaGanadora.proveedor.nombre + ' ' + ofertaGanadora.proveedor.apellido} por un precio de ${'$' + ofertaGanadora.percioOferta}`, 'success', 'Subasta finalizada');
         this.actualizarEstadoSubasta(ofertas);
@@ -159,14 +156,12 @@ export class SeleccionDeGanadorService {
     if (Array.isArray(data)) {
       data.forEach(element => {
         this.enviarEmail(element.email, mensaje);
-        console.log('TEL ', element.telefono)
         this.enviarWhatsapp(element.telefono, mensaje);
       })
     } else if (typeof data === 'object') {
       this.enviarEmail(data.email, mensaje);
       this.enviarWhatsapp(mensaje, data.telefono)
     } else {
-      console.log('NO ES NADA')
       this.addSingle('No se puedo enviar notificaciones.', 'error', 'Error al enviar mensaje de notificacion.');
     }
   }
@@ -203,7 +198,7 @@ export class SeleccionDeGanadorService {
 
     // Luego de 10 segundos, recarga la página
     setTimeout(() => {
-      //location.reload();
+      location.reload();
 
     }, 10000);
   }
