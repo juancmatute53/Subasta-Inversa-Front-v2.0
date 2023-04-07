@@ -273,8 +273,13 @@ export class DashboardComponent implements OnInit {
 // Función para crear un nuevo formulario de oferta con dos campos requeridos
   crearFormOferta(): void{
     this.formNuevaOferta = this._formBuilder.group({
-      precioOferta: ['', [Validators.required]],
-      comentarioCalificacion: ['', [Validators.required]],
+      precioOferta: ['', [
+        Validators.required,
+        Validators.pattern(/^[1-9][0-9]{1,4}$/), // Solo números de 10 a 99999
+        Validators.min(10), // Valor mínimo permitido
+        Validators.max(99999) // Valor máximo permitido
+      ]],
+      comentarioCalificacion: ['', [Validators.required]]
     });
   }
 
