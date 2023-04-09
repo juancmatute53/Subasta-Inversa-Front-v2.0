@@ -16,6 +16,6 @@ El proyecto utiliza tres APIs para funcionar:
 - https://github.com/leifermendez/api-whatsapp-ts.git: Se encarga de enviar las notificaciones a los usuarios a través de Whatsapp. Esta API pertenece al usuario llamado Leifer Mendez, a quien se le atribuye toda la autoría y los derechos del código presente en el repositorio.
 - https://github.com/MarlonVB/API-Email.git: Se encarga de enviar los mensajes de notificación a los usuarios del sistema.
 
-Sin estas APIs el sistema no podra funcionar en sus optimas condiciones, por lo que se recomienda tomar en cuenta esto antes de inicar el proyecto.
+Es importante tener en cuenta que sin la integración de estas APIs, el sistema no podrá funcionar en óptimas condiciones. Por lo tanto, se recomienda considerar esto cuidadosamente antes de iniciar el proyecto.
 
 
