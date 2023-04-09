@@ -1,42 +1,21 @@
 # Subasta Inversa - Caso #3 - Examen Complexivo
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.9.
+## NextSharp - Sistema de subastas inversa de servicios
 
-#Instalar node: 
-npm install 
+Este proyecto forma parte del examen complexivo en su fase práctica tomado por el Instituto Tecnologico Universitario del Azuay.
 
-#Instalar angular material: 
-ng add @angular/material
+### ¿En qué consiste un sistema de subasta inversa de servicio?
 
-#Instalar bootstrap: 
-npm i bootstrap@5.2.2
+Un sistema de subasta inversa de servicios es aquel en el que los compradores solicitan servicios y los proveedores ofrecen sus servicios al precio más bajo. En lugar de que los compradores acepten el precio establecido por los proveedores, los proveedores compiten para ofrecer el precio más bajo posible. Este sistema se utiliza comúnmente en la industria de la construcción, el transporte y otros sectores en los que se requieren servicios.
 
-#Crear componentes: 
-ng g c components/"nombre del componente sin comillas" --skip-tests
+### A considerar
 
-#Ejemplo de creacion componente:
- ng g c components/reportes --skip-tests
+El proyecto utiliza tres APIs para funcionar:
 
-## Development server
+- https://github.com/MarlonVB/API-subasta-v2.git: Gestiona toda la lógica de negocio.
+- https://github.com/leifermendez/api-whatsapp-ts.git: Se encarga de enviar las notificaciones a los usuarios a través de Whatsapp. Esta API pertenece al usuario llamado Leifer Mendez, a quien se le atribuye toda la autoría y los derechos del código presente en el repositorio.
+- https://github.com/MarlonVB/API-Email.git: Se encarga de enviar los mensajes de notificación a los usuarios del sistema.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Sin estas APIs el sistema no podra funcionar en sus optimas condiciones, por lo que se recomienda tomar en cuenta esto antes de inicar el proyecto.
 
-## Code scaffolding
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
