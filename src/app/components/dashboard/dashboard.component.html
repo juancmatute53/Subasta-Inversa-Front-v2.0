@@ -4,34 +4,35 @@
   <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
   <!-- Sidebar -->
   <div id="sidebar-container" class="bg-primary">
-    <div class="logo">
-      <h4 class="text-light font-weight-bold mb-0">Sistema de Subastas</h4>
+    <div class="menu-cabecera mt-3">
+      <img src="https://i.postimg.cc/9fFs8xG8/logo-op2-small-icon-only-inverted.png" width="100px">
+      <h4 class="text-light font-weight-bold mb-0">NextSharp</h4>
     </div>
-    <div class="menu">
-      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalMon"
-         class="d-block text-light p-3 border-0"><i
-        class="icon ion-md-tv lead mr-2"></i>
-        Monitoreo</a>
+    <div class="menu mt-5 p-1">
+      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalMon" class="option-menu d-block text-light ml-4 border-0">
+        <i class="bi bi-display-fill align-middle mr-3 fs-1"></i>
+        <span class="align-middle fs-5">Monitoreo</span>
+      </a>
 
-      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSub"
-         class="d-block text-light p-3 border-0"><i
-        class="icon ion-md-add-circle lead mr-2"></i>
-        Nueva subasta</a>
+      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSub" class="option-menu d-block text-light ml-4 mt-3 border-0">
+        <i class="bi bi-node-plus-fill align-middle mr-3 fs-1"></i>
+        <span class="align-middle fs-5">Nueva subasta</span>
+      </a>
 
-      <a *ngIf="rol === 'admin'" data-toggle="modal" data-target="#ventanaModalCat"
-         class="d-block text-light p-3 border-0"><i
-        class="icon ion-md-bookmark lead mr-2"></i>
-        Nueva categoria</a>
+      <a *ngIf="rol === 'admin'" data-toggle="modal" data-target="#ventanaModalCat" class="option-menu d-block text-light ml-4 mt-3 border-0">
+        <i class="bi bi-tags-fill align-middle mr-4 fs-2"></i>
+        <span class="align-middle fs-5">Nueva categoria</span>
+      </a>
 
-      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSubRealizadas"
-         class="d-block text-light p-3 border-0"><i
-        class="icon ion-md-time lead mr-2"></i>
-        Historial subastas realizadas</a>
+      <a *ngIf="rol === 'cliente' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSubRealizadas" class="option-menu d-block text-light ml-4 mt-3 border-0">
+        <i class="bi bi-clock-fill align-middle mr-4 fs-2"></i>
+        <span class="align-middle fs-5">Historial subastas</span>
+      </a>
 
-      <a *ngIf="rol === 'proveedor' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSubOfertadas"
-         class="d-block text-light p-3 border-0"><i
-        class="icon ion-md-time lead mr-2"></i>
-        Historial subastas ofertadas</a>
+      <a *ngIf="rol === 'proveedor' || rol === 'admin'" data-toggle="modal" data-target="#ventanaModalSubOfertadas" class="option-menu d-block text-light ml-4 mt-3 border-0">
+        <i class="bi bi-clock-fill align-middle mr-4 fs-2"></i>
+        <span class="align-middle fs-5">Historial ofertas</span>
+      </a>
 
     </div>
   </div>

@@ -36,12 +36,9 @@ p-rating{
   background-color: var(--primary);
 }
 
+
 #sidebar-container {
   min-height: 100vh;
-}
-
-#sidebar-container .logo{
-  padding: 0.875rem 1.25rem;
 }
 
 #sidebar-container .menu {
@@ -65,6 +62,17 @@ p-rating{
 .stat {
   border-right: 1px solid var(--grey);
 }
+
+.menu-cabecera {
+  display: grid;
+  place-items: center;
+}
+
+.option-menu{
+  cursor: pointer;
+  text-decoration: none;
+}
+
 
 /*p-image{*/
 /*  width: 200px;*/
