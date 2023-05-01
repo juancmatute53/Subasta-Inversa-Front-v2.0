@@ -68,6 +68,8 @@ export class DashboardComponent implements OnInit {
   posicionDialogOferta = 'right';
   mostrarDialogOferta = false;
   nombreUserLog = '';
+  mensajeUser = '';
+  textBienvenida = '';
   fechaActual = new Date().toLocaleDateString('es-es', { year: "numeric", month: "numeric", day: "numeric" });
   formData = new FormData();
   estrellas = 2;
@@ -93,6 +95,7 @@ export class DashboardComponent implements OnInit {
     switch (this._tokenService.getAuthorities()[0]) {
       // Si el rol es 'ROLE_CLIENTE', se realizan las siguientes acciones:
       case 'ROLE_CLIENTE':
+
         // Se asigna el valor 'cliente' a la variable 'rol' para que se pueda utilizar más adelante.
         this.rol = 'cliente';
 
@@ -124,6 +127,7 @@ export class DashboardComponent implements OnInit {
 
       // Si el rol es 'ROLE_PROVEEDOR', se realizan las siguientes acciones:
       case 'ROLE_PROVEEDOR':
+
         // Se asigna el valor 'proveedor' a la variable 'rol' para que se pueda utilizar más adelante.
         this.rol = 'proveedor';
 
@@ -134,6 +138,8 @@ export class DashboardComponent implements OnInit {
       // Si el rol es 'ROLE_ADMIN', se realizan las siguientes acciones:
       case 'ROLE_ADMIN':
         // Se asigna el valor 'admin' a la variable 'rol' para que se pueda utilizar más adelante.
+        this.mensajeUser = '¡Bienvenido administrador y gracias por ayudarnos a brindar un servicio de calidad a nuestros usuarios!'
+        this.textBienvenida = 'En el panel de administración de NextSharp, donde podrás personalizar y optimizar el sistema de subastas inversas para tus necesidades específicas.'
         this.rol = 'admin';
         break;
     }
@@ -434,6 +440,13 @@ export class DashboardComponent implements OnInit {
       // @ts-ignore
       this.nombreUserLog = this.dataUsuario.nombre+' '+this.dataUsuario.apellido;
 
+      // Se establece el mensaje y texto de bienvenida solo para el rol de cliente
+      this.mensajeUser = `¡Bienvenido, ${this.nombreUserLog} a NextSharp, donde conseguir los mejores precios es nuestra misión!`;
+      this.textBienvenida =
+        'Estamos encantados de que hayas decidido utilizar nuestra plataforma para conseguir los mejores precios. ' +
+        'Con NextSharp, podrás acceder a una amplia selección de proveedores que competirán entre sí para ofrecerte los precios más bajos. ' +
+        'Además, nuestra plataforma es fácil de usar y te permite hacer ofertas de manera rápida y sencilla.';
+
     }).catch(err =>{
       // Si se produce algún error durante el proceso de filtrado del cliente, se llama a la función 'addSingle' con tres
       // argumentos: un mensaje de error, una cadena que indica el tipo de mensaje y otra cadena que representa el título del mensaje
@@ -475,6 +488,12 @@ export class DashboardComponent implements OnInit {
           idServicio: item.idServicio
         });
       })
+      // Se establece el mensaje y texto de bienvenida unico para el proveedor
+      this.mensajeUser = `¡Bienvenido a NextSharp, ${this.nombreUserLog} el sistema de subastas inversas que te ayuda a llegar a más clientes y aumentar tus ganacias!`;
+      this.textBienvenida =
+        'Como proveedor de servicios, tienes la oportunidad de participar en subastas inversas y competir con otros proveedores para ofrecer los mejores precios y servicios a los compradores. ' +
+        'En NextSharp, valoramos tu experiencia y tus habilidades únicas.' +
+        ' Nuestra plataforma te permite acceder a nuevas oportunidades de negocio, aumentar tu visibilidad en el mercado y crecer como proveedor de servicios. '
     }).catch(err =>{
       // Si se produce algún error durante el proceso de filtrado del proveedor, se llama a la función 'addSingle'
       // con tres argumentos: un mensaje de error, una cadena que indica el tipo de mensaje y otra cadena

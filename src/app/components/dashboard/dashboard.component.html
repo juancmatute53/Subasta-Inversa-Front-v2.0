@@ -99,9 +99,12 @@
       <section class="bg-light py-3">
         <div class="container">
           <div class="row">
-            <div class="col-lg-9 col-md-8">
-              <h1 class="font-weight-bold mb-1">¡Hola {{nombreUserLog}}!</h1>
-              <p class="lead text-muted">El equipo de NextSharp te da la bienvenida.</p>
+            <div class="col">
+              <h1 class="font-weight-bold mt-3 mb-1 fs-2">{{mensajeUser}}</h1>
+              <p class="lead text-muted">{{textBienvenida}}</p>
+            </div>
+            <div class="col">
+              <img class="mx-lg-5" src="assets/welcome2.gif" width="380px">
             </div>
           </div>
         </div>
@@ -141,7 +144,11 @@
         </p-accordion>
         <div *ngIf="!verNotifiCliente && !verNotifiProveedor" class="container text-center">
           <div class="row">
-            <div *ngIf="subastasBD.length === 0">No hay subastas para mostrar</div>
+            <div class="no-data-view" *ngIf="subastasBD.length === 0">
+              <img src="assets/no-data.gif" width="500px">
+              <p class="fs-5">¡UPS! No encontramos subastas en este momento.</p>
+              <p class="fs-5">¡Pero no te preocupes! Pronto tendremos nuevas oportunidades para ti. ¡Mantente atento!</p>
+            </div>
             <div class="col p-2 mt-2" *ngFor="let subasta of subastasBD">
               <p-card header="{{subasta.tituloSubasta}}" subheader="" [style]="{width: '360px'}"
                       styleClass="p-card-shadow">

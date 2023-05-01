@@ -73,6 +73,11 @@ p-rating{
   text-decoration: none;
 }
 
+.no-data-view{
+  display: grid;
+  place-items: center;
+}
+
 
 /*p-image{*/
 /*  width: 200px;*/
