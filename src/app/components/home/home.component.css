@@ -251,7 +251,7 @@ section {
 }
 
 .banner img {
-  width: 800px;
+  width: 500px;
   height: 270px;
   object-fit: cover;
   animation: morph 3.5s linear infinite;
