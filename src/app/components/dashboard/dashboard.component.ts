@@ -439,6 +439,7 @@ export class DashboardComponent implements OnInit {
       // concatenando las propiedades 'nombre' y 'apellido' de 'dataUsuario'
       // @ts-ignore
       this.nombreUserLog = this.dataUsuario.nombre+' '+this.dataUsuario.apellido;
+      this.llenarFromDataGeneral();
 
       // Se establece el mensaje y texto de bienvenida solo para el rol de cliente
       this.mensajeUser = `¡Bienvenido, ${this.nombreUserLog} a NextSharp, donde conseguir los mejores precios es nuestra misión!`;
@@ -465,18 +466,7 @@ export class DashboardComponent implements OnInit {
       // También se establecen valores en diferentes campos de un formulario llamado 'formEditarUsuario'
       // Además, se asigna un array a la variable 'serviciosAgregados' y se itera sobre sus elementos para agregarlos al array 'servicioPost'
       // Cabe destacar que se utilizan las anotaciones '@ts-ignore' para ignorar posibles errores en el código
-      // @ts-ignore
-      this.nombreUserLog = this.dataUsuario.nombre+' '+this.dataUsuario.apellido;
-      // @ts-ignore
-      this.formEditarUsuario.get('nombre').setValue(this.dataUsuario.nombre)
-      // @ts-ignore
-      this.formEditarUsuario.get('apellido').setValue(this.dataUsuario.apellido)
-      // @ts-ignore
-      this.formEditarUsuario.get('direccion').setValue(this.dataUsuario.direccion)
-      // @ts-ignore
-      this.formEditarUsuario.get('email').setValue(this.dataUsuario.email)
-      // @ts-ignore
-      this.formEditarUsuario.get('telefono').setValue(this.dataUsuario.telefono)
+      this.llenarFromDataGeneral();
       // @ts-ignore
       this.formEditarUsuario.get('aniosExp').setValue(this.dataUsuario.anios_experiencia)
       // @ts-ignore
@@ -553,6 +543,21 @@ export class DashboardComponent implements OnInit {
       // Si la promesa es rechazada, se maneja el error mediante la función addSingle, que agrega un mensaje de error
       this.addSingle(err.message, 'error', 'Error');
     });
+  }
+
+  llenarFromDataGeneral(){
+    // @ts-ignore
+    this.nombreUserLog = this.dataUsuario.nombre+' '+this.dataUsuario.apellido;
+    // @ts-ignore
+    this.formEditarUsuario.get('nombre').setValue(this.dataUsuario.nombre)
+    // @ts-ignore
+    this.formEditarUsuario.get('apellido').setValue(this.dataUsuario.apellido)
+    // @ts-ignore
+    this.formEditarUsuario.get('direccion').setValue(this.dataUsuario.direccion)
+    // @ts-ignore
+    this.formEditarUsuario.get('email').setValue(this.dataUsuario.email)
+    // @ts-ignore
+    this.formEditarUsuario.get('telefono').setValue(this.dataUsuario.telefono)
   }
 
   // * TODO GENERALES
