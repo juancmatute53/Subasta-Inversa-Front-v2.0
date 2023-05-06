@@ -658,7 +658,10 @@
         <p-dialog header="Ofertas recibidas" [(visible)]="mostrarDialogOferta" [position]="posicionDialogOferta"
                   [modal]="true" [style]="{width: '50vw'}"
                   [draggable]="false" [resizable]="false">
-
+          <div>
+            <p-message severity="info"
+                       text="El proceso de seleccion es automatico y aqui solo puedes ver las ofertas que has recivido." styleClass="mr-2"></p-message>
+          </div>
           <div class="container">
             <div class="row">
               <div *ngIf="ofertasPorSubasta.length === 0">Aun no se han registrado ofertas</div>
@@ -678,7 +681,7 @@
                     <p>
                       <strong>Años Experiencia:</strong>{{' ' + ofer.proveedor.anios_experiencia}}
                     </p>
-                    <button (click)="confirm(ofer)" pButton icon="pi pi-check" label="Confirm"></button>
+<!--                    <button (click)="confirm(ofer)" pButton icon="pi pi-check" label="Confirm"></button>-->
                   </ng-template>
                 </p-card>
               </div>
