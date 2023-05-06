@@ -128,7 +128,7 @@
                 <ng-template  let-subasta pTemplate="item">
                   <p-card header="{{subasta.tituloSubasta}}" subheader="{{subasta.descripcionSubasta}}" [style]="{width: '350px'}" styleClass="p-card-shadow">
                     <ng-template pTemplate="header">
-                      <img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}"
+                      <img alt="Card" [src]="subasta.imgSubasta ? 'http://localhost:9090/auth/subasta/photos/' + subasta.imgSubasta : 'assets/img-void.png'"
                            width="205px" height="205px">
                     </ng-template>
                     <h2></h2>
@@ -136,6 +136,7 @@
                       <p></p>
                     </ng-template>
                   </p-card>
+
                   <br>
                 </ng-template>
               </p-carousel>
@@ -147,16 +148,14 @@
             <div class="no-data-view" *ngIf="subastasBD.length === 0">
               <img src="assets/no-data.gif" width="500px">
               <p class="fs-5">¡UPS! No encontramos subastas en este momento.</p>
-              <p class="fs-5">¡Pero no te preocupes! Pronto tendremos nuevas oportunidades para ti. ¡Mantente atento!</p>
+              <p class="fs-5">{{rol === 'cliente' ? msjSubVaciaCli : msjSubVaciaProv}}</p>
             </div>
             <div class="col p-2 mt-2" *ngFor="let subasta of subastasBD">
               <p-card header="{{subasta.tituloSubasta}}" subheader="" [style]="{width: '360px'}"
                       styleClass="p-card-shadow">
                 <ng-template pTemplate="header">
-                  <p-image
-                    src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}"
-                    [preview]="true" width="205px" height="205px">
-                  </p-image>
+                  <img alt="Card" [src]="subasta.imgSubasta ? 'http://localhost:9090/auth/subasta/photos/' + subasta.imgSubasta : 'assets/img-void.png'"
+                       width="205px" height="205px">
                   <!--<img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}" style="width: 200px; height: 100px; object-fit: cover;" (click)="">-->
                 </ng-template>
                 <p>{{subasta.descripcionSubasta}}</p>
@@ -220,7 +219,7 @@
                     {{oferta.subasta.fechaFin | date: 'dd/mm/yyyy'}}</span>
                   <ng-template pTemplate="footer">
                     <p-accordion>
-                      <p-accordionTab header="Detelle del proveedor" [selected]="true">
+                      <p-accordionTab header="Detalle del proveedor" [selected]="true">
                         <div class="text-start">
                           <ul>
                             <!--suppress TypeScriptUnresolvedVariable -->
@@ -302,7 +301,7 @@
                     {{oferta.subasta.fechaFin | date: 'dd/mm/yyyy'}}</span>
                   <ng-template pTemplate="footer">
                     <p-accordion>
-                      <p-accordionTab header="Detelle del cliente" [selected]="true">
+                      <p-accordionTab header="Detalle del cliente" [selected]="true">
                         <div class="text-start">
                           <ul>
                             <!--suppress TypeScriptUnresolvedVariable -->
@@ -659,7 +658,10 @@
         <p-dialog header="Ofertas recibidas" [(visible)]="mostrarDialogOferta" [position]="posicionDialogOferta"
                   [modal]="true" [style]="{width: '50vw'}"
                   [draggable]="false" [resizable]="false">
-
+          <div>
+            <p-message severity="info"
+                       text="El proceso de seleccion es automatico y aqui solo puedes ver las ofertas que has recivido." styleClass="mr-2"></p-message>
+          </div>
           <div class="container">
             <div class="row">
               <div *ngIf="ofertasPorSubasta.length === 0">Aun no se han registrado ofertas</div>
@@ -679,7 +681,7 @@
                     <p>
                       <strong>Años Experiencia:</strong>{{' ' + ofer.proveedor.anios_experiencia}}
                     </p>
-                    <button (click)="confirm(ofer)" pButton icon="pi pi-check" label="Confirm"></button>
+<!--                    <button (click)="confirm(ofer)" pButton icon="pi pi-check" label="Confirm"></button>-->
                   </ng-template>
                 </p-card>
               </div>
@@ -711,7 +713,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Perfil de Usuario</h5>
-        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" (click)="editarUsuario()"></button>
       </div>
       <div class="modal-body">
         <!--Tabla-->
