@@ -75,6 +75,10 @@ export class DashboardComponent implements OnInit {
   estrellas = 2;
   aniosExp = 1;
 
+  // Variables para mensajes de compartamiento del sistema
+  msjSubVaciaCli = '¡Pero no te preocupes! En cuanto tengamos subastas listas te las mostraremos.'
+  msjSubVaciaProv = '¡Pero no te preocupes! Pronto tendremos nuevas oportunidades para ti. ¡Mantente atento!'
+
   constructor(private _messageService: MessageService,
               private _formBuilder: FormBuilder,
               private _servios: ServiciosService,
@@ -281,8 +285,8 @@ export class DashboardComponent implements OnInit {
     this.formNuevaOferta = this._formBuilder.group({
       precioOferta: ['', [
         Validators.required,
-        Validators.pattern(/^[1-9][0-9]{1,4}$/), // Solo números de 10 a 99999
-        Validators.min(10), // Valor mínimo permitido
+        Validators.pattern(/^\d*\.?\d+$/), // Solo números enteros o decimales con punto o coma decimal
+        Validators.min(0.01), // Valor mínimo permitido
         Validators.max(99999) // Valor máximo permitido
       ]],
       comentarioCalificacion: ['', [Validators.required]]

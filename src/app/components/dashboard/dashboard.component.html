@@ -128,7 +128,7 @@
                 <ng-template  let-subasta pTemplate="item">
                   <p-card header="{{subasta.tituloSubasta}}" subheader="{{subasta.descripcionSubasta}}" [style]="{width: '350px'}" styleClass="p-card-shadow">
                     <ng-template pTemplate="header">
-                      <img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}"
+                      <img alt="Card" [src]="subasta.imgSubasta ? 'http://localhost:9090/auth/subasta/photos/' + subasta.imgSubasta : 'assets/img-void.png'"
                            width="205px" height="205px">
                     </ng-template>
                     <h2></h2>
@@ -136,6 +136,7 @@
                       <p></p>
                     </ng-template>
                   </p-card>
+
                   <br>
                 </ng-template>
               </p-carousel>
@@ -147,16 +148,14 @@
             <div class="no-data-view" *ngIf="subastasBD.length === 0">
               <img src="assets/no-data.gif" width="500px">
               <p class="fs-5">¡UPS! No encontramos subastas en este momento.</p>
-              <p class="fs-5">¡Pero no te preocupes! Pronto tendremos nuevas oportunidades para ti. ¡Mantente atento!</p>
+              <p class="fs-5">{{rol === 'cliente' ? msjSubVaciaCli : msjSubVaciaProv}}</p>
             </div>
             <div class="col p-2 mt-2" *ngFor="let subasta of subastasBD">
               <p-card header="{{subasta.tituloSubasta}}" subheader="" [style]="{width: '360px'}"
                       styleClass="p-card-shadow">
                 <ng-template pTemplate="header">
-                  <p-image
-                    src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}"
-                    [preview]="true" width="205px" height="205px">
-                  </p-image>
+                  <img alt="Card" [src]="subasta.imgSubasta ? 'http://localhost:9090/auth/subasta/photos/' + subasta.imgSubasta : 'assets/img-void.png'"
+                       width="205px" height="205px">
                   <!--<img alt="Card" src="http://localhost:9090/auth/subasta/photos/{{subasta.imgSubasta}}" style="width: 200px; height: 100px; object-fit: cover;" (click)="">-->
                 </ng-template>
                 <p>{{subasta.descripcionSubasta}}</p>
