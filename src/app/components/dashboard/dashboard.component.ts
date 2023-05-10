@@ -869,7 +869,7 @@ export class DashboardComponent implements OnInit {
   }
 
   procesoSeleccion(): void {
-    console.log('A')
+    console.log('A ', this.subastasUser)
     if (Array.isArray(this.subastasUser) && this.subastasUser !== undefined) {
       console.log('B')
       this.subastasUser.forEach(subasta => {
@@ -885,7 +885,7 @@ export class DashboardComponent implements OnInit {
         // Verificar si la subasta ya finalizó y si la hora actual es menor o igual a la hora de cierre de la subasta
         if (fechaActual.toLocaleDateString('es-ES') >= new Date(subasta.fechaFin).toLocaleDateString('es-ES') &&  horaActual >= subasta.horaCierreSubasta) {
           // Llamar al servicio de selección para filtrar las ofertas de la subasta
-          this._seleccionService.filtroOfertas(subasta.idSubasta);
+          this._seleccionService.filtroOfertas(subasta);
         }
       });
     }
