@@ -5,6 +5,7 @@ import {SubastaCrudService} from "../subasta/subasta-crud.service";
 import {MessageService} from "primeng/api";
 import {NoticeService} from "../notificacion/notice.service";
 import {Ofertas} from "../../../models/ofertas";
+import {Subastas} from "../../../models/subastas";
 
 @Injectable({
   providedIn: 'root'
@@ -24,78 +25,82 @@ export class SeleccionDeGanadorService {
   }
 // Este método recibe un identificador de subasta, filtra las ofertas por ese identificador,
 // las ordena por precio de forma ascendente y selecciona la oferta ganadora (la que tiene el precio más bajo).
-  filtroOfertas(id: number): void {
-
+  filtroOfertas(subasta: Subastas): void {
+    console.log('SERTVICE A')
     // Obtenemos todas las ofertas disponibles
     this._ofertaCrudService.obtenerOferta().then(res => {
       // Filtrar las ofertas por el identificador de la subasta
-      const ofertas: Ofertas[] = res.filter((oferta: Ofertas) => oferta.subasta.idSubasta === id);
-      // Creamos un array de objetos con los números de teléfono y los correos electrónicos de las ofertas que cumplen la
-      // condición y tienen estos datos definidos
-      const telefonosYCorreos: { telefono?: string, correo?: string }[] = ofertas
-        // Filtramos solo las ofertas que tienen un número de teléfono o correo electrónico definido (no son undefined ni null)
-        .filter(oferta => oferta.proveedor.telefono || oferta.proveedor.email)
-        // Extraemos tanto los números de teléfono como los correos electrónicos de las ofertas que pasaron el filtro anterior
-        .map(oferta => ({ telefono: oferta.proveedor.telefono, email: oferta.proveedor.email, subasta: oferta.subasta }));
+      const ofertas: Ofertas[] = res.filter((oferta: Ofertas) => oferta.subasta.idSubasta === subasta.idSubasta);
+      if (ofertas.length >= 1){
+        // Creamos un array de objetos con los números de teléfono y los correos electrónicos de las ofertas que cumplen la
+        // condición y tienen estos datos definidos
+        const telefonosYCorreos: { telefono?: string, correo?: string }[] = ofertas
+          // Filtramos solo las ofertas que tienen un número de teléfono o correo electrónico definido (no son undefined ni null)
+          .filter(oferta => oferta.proveedor.telefono || oferta.proveedor.email)
+          // Extraemos tanto los números de teléfono como los correos electrónicos de las ofertas que pasaron el filtro anterior
+          .map(oferta => ({ telefono: oferta.proveedor.telefono, email: oferta.proveedor.email, subasta: oferta.subasta }));
 
-      // Ordenar las ofertas por precio de forma ascendente
-      ofertas.sort((a: Ofertas, b: Ofertas) => a.percioOferta - b.percioOferta);
+        // Ordenar las ofertas por precio de forma ascendente
+        ofertas.sort((a: Ofertas, b: Ofertas) => a.percioOferta - b.percioOferta);
 
-      // Seleccionar la oferta ganadora (la que tiene el precio más bajo)
-      const ofertaGanadora: Ofertas = ofertas[0];
+        // Seleccionar la oferta ganadora (la que tiene el precio más bajo)
+        const ofertaGanadora: Ofertas = ofertas[0];
 
-      // Verificar si hay más de una oferta ganadora o si hay empates
-      const precios = ofertas.map((oferta: Ofertas) => oferta.percioOferta);
-      const precioMinimo = Math.min(...precios);
-      const cantidadPreciosMinimos = precios.filter((precio: number) => precio === precioMinimo).length;
+        // Verificar si hay más de una oferta ganadora o si hay empates
+        const precios = ofertas.map((oferta: Ofertas) => oferta.percioOferta);
+        const precioMinimo = Math.min(...precios);
+        const cantidadPreciosMinimos = precios.filter((precio: number) => precio === precioMinimo).length;
 
-      // Si hay más de una oferta ganadora o si hay empates, se muestra un mensaje y se actualiza el estado de la subasta
-      if (cantidadPreciosMinimos > 1) {
-        this.addSingle('La subasta ha sido cerrada sin ganador', 'warn', 'Subasta cerrada');
-        this.enviarNotificacion(`Lastimosamente la subasta *${ofertaGanadora.subasta.tituloSubasta}* a cerrado sin ganadores.`, telefonosYCorreos);
-        this.actualizarEstadoSubasta(ofertas[0].subasta);
-      } else {
+        // Si hay más de una oferta ganadora o si hay empates, se muestra un mensaje y se actualiza el estado de la subasta
+        if (cantidadPreciosMinimos > 1) {
+          this.addSingle('La subasta ha sido cerrada sin ganador', 'warn', 'Subasta cerrada');
+          this.enviarNotificacion(`Lastimosamente la subasta *${ofertaGanadora.subasta.tituloSubasta}* a cerrado sin ganadores.`, telefonosYCorreos);
+          this.actualizarEstadoSubasta(ofertas[0].subasta, 0);
+        } else {
 
-        // Obtener los números de teléfono de los perdedores
-        const datosPerdedores = ofertas
-          .filter((oferta: Ofertas) => oferta.proveedor.telefono && oferta.proveedor.telefono !== ofertaGanadora.proveedor.telefono)
-          .map((oferta: Ofertas) => [{ telefono: oferta.proveedor.telefono, email: oferta.proveedor.email }]);
+          // Obtener los números de teléfono de los perdedores
+          const datosPerdedores = ofertas
+            .filter((oferta: Ofertas) => oferta.proveedor.telefono && oferta.proveedor.telefono !== ofertaGanadora.proveedor.telefono)
+            .map((oferta: Ofertas) => [{ telefono: oferta.proveedor.telefono, email: oferta.proveedor.email }]);
 
-        // Enviamos notificacion al ganador de la subasta
-        this.enviarEmail(
-          ofertaGanadora.proveedor.email,
-          `Usted ha sido el gran gandor en la subasta de ${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido}
-          Subasta con el titulo de ${ofertaGanadora.subasta.tituloSubasta}`
-        );
-        this.enviarWhatsapp(
-          `Usted ha sido el gran gandor en la subasta de *${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido}'* +
-          'Subasta con el titulo de *${ofertaGanadora.subasta.tituloSubasta}*`,
-          ofertaGanadora.proveedor.telefono
-        );
-
-        // Enviamos notificacion a el o los perdedores
-        datosPerdedores.forEach((element) =>{
+          // Enviamos notificacion al ganador de la subasta
           this.enviarEmail(
-            element[0].email,
-            `Usted ha sido el gran gandor en la subasta de ${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido} Subasta con el titulo de ${ofertaGanadora.subasta.tituloSubasta}`
+            ofertaGanadora.proveedor.email,
+            `Usted ha sido el gran gandor en la subasta de ${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido}
+          Subasta con el titulo de ${ofertaGanadora.subasta.tituloSubasta}`
+          );
+          this.enviarWhatsapp(
+            `Usted ha sido el gran gandor en la subasta de *${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido}'* +
+          'Subasta con el titulo de *${ofertaGanadora.subasta.tituloSubasta}*`,
+            ofertaGanadora.proveedor.telefono
           );
 
-          this.enviarWhatsapp(
-            `Usted no ha sido escogido en la subasta de *${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido}'* Subasta con el titulo de *${ofertaGanadora.subasta.tituloSubasta}*`,
-            element[0].telefono
-          );
-        })
-        // Si solo hay una oferta ganadora, se muestra un mensaje con la información de la oferta y se actualiza su estado
-        this.addSingle(`La oferta ganadora es la de ${ofertaGanadora.proveedor.nombre + ' ' + ofertaGanadora.proveedor.apellido} por un precio de ${'$' + ofertaGanadora.percioOferta}`, 'success', 'Subasta finalizada');
-        this.actualizarEstadoSubasta(ofertas);
-        this.actualizarOferta(ofertaGanadora);
+          // Enviamos notificacion a el o los perdedores
+          datosPerdedores.forEach((element) =>{
+            this.enviarEmail(
+              element[0].email,
+              `Usted ha sido el gran gandor en la subasta de ${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido} Subasta con el titulo de ${ofertaGanadora.subasta.tituloSubasta}`
+            );
+
+            this.enviarWhatsapp(
+              `Usted no ha sido escogido en la subasta de *${ofertaGanadora.subasta.cliente.nombre+' '+ofertaGanadora.subasta.cliente.apellido}'* Subasta con el titulo de *${ofertaGanadora.subasta.tituloSubasta}*`,
+              element[0].telefono
+            );
+          })
+          // Si solo hay una oferta ganadora, se muestra un mensaje con la información de la oferta y se actualiza su estado
+          this.addSingle(`La oferta ganadora es la de ${ofertaGanadora.proveedor.nombre + ' ' + ofertaGanadora.proveedor.apellido} por un precio de ${'$' + ofertaGanadora.percioOferta}`, 'success', 'Subasta finalizada');
+          this.actualizarEstadoSubasta(ofertas, 0);
+          this.actualizarOferta(ofertaGanadora);
+        }
+      }else {
+        this.actualizarEstadoSubastaSinOferta(subasta);
       }
     }).catch(err => {
       // Si ocurre un error al obtener las ofertas, se muestra un mensaje de error
       this.addSingle(err.message, 'error', 'Error al ofertar');
     });
   }
-  actualizarEstadoSubasta(oferSubasta: any): void {
+  actualizarEstadoSubasta(oferSubasta: any, idSubasta: number): void {
     // Se extrae la subasta del primer elemento del arreglo oferSubasta
     const { subasta } = oferSubasta[0];
     // Se crea un objeto con las propiedades actualizadas de la subasta a cerrar
@@ -112,6 +117,29 @@ export class SeleccionDeGanadorService {
       .then(() => {
         // Si la operación se completa con éxito, se muestra un mensaje de éxito al usuario
         this.addSingle('Subasta finalizada', 'success', 'Finalizacion');
+      })
+      .catch(err => {
+        // Si ocurre un error, se muestra un mensaje de error al usuario
+        this.addSingle(err.message, 'error', 'Error');
+      });
+  }
+
+  actualizarEstadoSubastaSinOferta(subasta: Subastas): void {
+
+    // Se crea un objeto con las propiedades actualizadas de la subasta a cerrar
+    const subastaActualizada = {
+      ...subasta, // Se copian todas las propiedades de subasta
+      estadoSubasta: 'Cerrada', // Se sobrescribe el valor de estadoSubasta
+    };
+
+    this.enviarNotificacion(`Tu subasta *${subasta.tituloSubasta}* a finalizado sin una oferta 😢. Puedes revisar tu panel en NextSharp`, subasta.cliente);
+
+    // Se llama al método editarSubasta del servicio correspondiente, enviando como
+    // parámetros la subasta actualizada y su identificador
+    this._subastaCrudService.editarSubasta(subastaActualizada, subasta.idSubasta.toString())
+      .then(() => {
+        // Si la operación se completa con éxito, se muestra un mensaje de éxito al usuario
+        this.addSingle('Subasta finalizada sin ofertas realizadas 😢.', 'success', 'Finalizacion');
       })
       .catch(err => {
         // Si ocurre un error, se muestra un mensaje de error al usuario
@@ -198,7 +226,7 @@ export class SeleccionDeGanadorService {
 
     // Luego de 10 segundos, recarga la página
     setTimeout(() => {
-      location.reload();
+      //location.reload();
 
     }, 10000);
   }
